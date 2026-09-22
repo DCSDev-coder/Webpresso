@@ -1,0 +1,62 @@
+- generic [active] [ref=e1]:
+  - banner [ref=e2]:
+    - link "Webpresso home" [ref=e3] [cursor=pointer]:
+      - /url: "#"
+      - generic [aria-hidden] [ref=e4]: W
+      - generic [ref=e5]: webpresso
+    - generic [ref=e6]: Your images never leave this device
+  - main [ref=e8]:
+    - region [ref=e9]:
+      - paragraph [ref=e10]: Image compressor
+      - heading "Smaller images. Sharper websites." [level=1] [ref=e11]: Smaller images.Sharper websites.
+      - paragraph [ref=e12]: Turn your images into lightweight WebP files—ready for faster pages, happier visitors, and less waiting.
+    - region "WebP converter" [ref=e13]:
+      - generic [ref=e14]:
+        - generic [ref=e15]: 01 Add your images
+        - button "Drop images here or choose from your device PNG · JPG · JPEG · SVG · GIF · BMP · AVIF" [ref=e16] [cursor=pointer]:
+          - strong [ref=e20]: Drop images here
+          - generic [ref=e21]: or choose from your device
+          - generic [ref=e22]: PNG · JPG · JPEG · SVG · GIF · BMP · AVIF
+        - generic [ref=e23]:
+          - generic [ref=e24]: 02 Tune the output
+          - generic [ref=e25]:
+            - generic [ref=e26]: Quality
+            - status [ref=e27]: 82%
+          - slider "Quality" [ref=e28]: "82"
+          - generic [aria-hidden] [ref=e29]:
+            - generic [ref=e30]: Smaller file
+            - generic [ref=e31]: Best quality
+          - generic [ref=e32] [cursor=pointer]:
+            - generic [ref=e33]:
+              - strong [ref=e34]: Resize large images
+              - generic [ref=e35]: Keep original proportions
+            - checkbox "Resize large images Keep original proportions" [ref=e37]
+      - generic [ref=e39]:
+        - generic [ref=e40]:
+          - generic [ref=e41]:
+            - paragraph [ref=e42]: 03 Download WebP
+            - heading "Your converted images" [level=2] [ref=e43]
+          - button "Download all" [ref=e44] [cursor=pointer]
+        - generic [ref=e47]:
+          - generic [aria-hidden] [ref=e48]:
+            - generic [ref=e49]: JPG
+            - generic [ref=e50]: WEBP
+          - heading "Ready when you are" [level=2] [ref=e53]
+          - paragraph [ref=e54]: Your converted images will appear here with a side-by-side size comparison.
+    - region "Converter details" [ref=e55]:
+      - article [ref=e56]:
+        - text: "01"
+        - heading "Private by design" [level=3] [ref=e57]
+        - paragraph [ref=e58]: Everything happens inside your browser. Nothing is uploaded or stored.
+      - article [ref=e59]:
+        - text: "02"
+        - heading "Made for the web" [level=3] [ref=e60]
+        - paragraph [ref=e61]: WebP keeps images crisp while reducing the weight your visitors download.
+      - article [ref=e62]:
+        - text: "03"
+        - heading "Batch friendly" [level=3] [ref=e63]
+        - paragraph [ref=e64]: Convert several files together, then download them one by one or all at once.
+  - contentinfo [ref=e65]:
+    - generic [ref=e66]: webpresso
+    - paragraph [ref=e67]: Free, private, and made for faster websites.
+  - status

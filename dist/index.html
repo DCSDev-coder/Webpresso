@@ -1,0 +1,116 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="theme-color" content="#111512" />
+    <meta
+      name="description"
+      content="Convert PNG, JPG, SVG and other browser-supported images to lightweight WebP files. Private, fast and entirely in your browser."
+    />
+    <title>Webpresso — Image to WebP Converter</title>
+    <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='8' fill='%23111512'/%3E%3Cpath d='M8 10h4l2 10 2-7 2 7 2-10h4' fill='none' stroke='%23c7ff4a' stroke-width='3' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E" />
+    <link rel="stylesheet" href="./styles.css" />
+    <script src="./app.js" defer></script>
+  </head>
+  <body>
+    <header class="site-header">
+      <a class="brand" href="#" aria-label="Webpresso home">
+        <span class="brand-mark" aria-hidden="true">W</span>
+        <span>webpresso</span>
+      </a>
+      <div class="privacy-note">
+        <span class="privacy-dot" aria-hidden="true"></span>
+        Your images never leave this device
+      </div>
+    </header>
+
+    <main>
+      <section class="intro" aria-labelledby="page-title">
+        <p class="eyebrow">Image compressor</p>
+        <h1 id="page-title">Smaller images.<br /><span>Sharper websites.</span></h1>
+        <p class="intro-copy">Turn your images into lightweight WebP files—ready for faster pages, happier visitors, and less waiting.</p>
+      </section>
+
+      <section class="workspace" aria-label="WebP converter">
+        <div class="controls-card">
+          <div class="step-label"><span>01</span> Add your images</div>
+          <button class="drop-zone" id="drop-zone" type="button" aria-describedby="format-note">
+            <span class="upload-icon" aria-hidden="true">
+              <svg viewBox="0 0 24 24" width="28" height="28"><path d="M12 16V4m0 0L7.5 8.5M12 4l4.5 4.5M5 14v4a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2v-4" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg>
+            </span>
+            <strong>Drop images here</strong>
+            <span>or <u>choose from your device</u></span>
+            <span class="formats" id="format-note">PNG · JPG · JPEG · SVG · GIF · BMP · AVIF</span>
+          </button>
+          <input id="file-input" type="file" accept="image/*,.svg,.avif,.bmp" multiple hidden />
+
+          <div class="settings">
+            <div class="step-label"><span>02</span> Tune the output</div>
+            <div class="quality-row">
+              <label for="quality">Quality</label>
+              <output id="quality-value" for="quality">82%</output>
+            </div>
+            <input id="quality" class="range" type="range" min="10" max="100" value="82" />
+            <div class="range-labels" aria-hidden="true"><span>Smaller file</span><span>Best quality</span></div>
+
+            <label class="toggle-row" for="resize-toggle">
+              <span>
+                <strong>Resize large images</strong>
+                <small>Keep original proportions</small>
+              </span>
+              <span class="switch"><input id="resize-toggle" type="checkbox" /><span aria-hidden="true"></span></span>
+            </label>
+
+            <div class="resize-fields" id="resize-fields" hidden>
+              <label for="max-width">Maximum width</label>
+              <div class="input-suffix"><input id="max-width" type="number" min="64" max="12000" value="1920" /><span>px</span></div>
+            </div>
+          </div>
+        </div>
+
+        <div class="results-card" id="results-card">
+          <div class="results-head">
+            <div>
+              <p class="step-label"><span>03</span> Download WebP</p>
+              <h2>Your converted images</h2>
+            </div>
+            <button class="download-all" id="download-all" type="button" hidden>
+              Download all
+              <svg viewBox="0 0 24 24" width="18" height="18" aria-hidden="true"><path d="M12 4v11m0 0 4-4m-4 4-4-4M5 20h14" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+            </button>
+          </div>
+
+          <div class="empty-state" id="empty-state">
+            <div class="empty-visual" aria-hidden="true">
+              <span class="file-card file-back">JPG</span>
+              <span class="file-card file-front">WEBP</span>
+              <svg viewBox="0 0 24 24" width="24" height="24"><path d="M5 12h13m-4-4 4 4-4 4" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+            </div>
+            <h2>Ready when you are</h2>
+            <p>Your converted images will appear here with a side-by-side size comparison.</p>
+          </div>
+
+          <div class="summary" id="summary" hidden aria-live="polite">
+            <div><span id="summary-count">0 images</span><strong id="summary-saved">0 KB saved</strong></div>
+            <div class="summary-track"><span id="summary-bar"></span></div>
+          </div>
+          <div class="result-list" id="result-list" aria-live="polite"></div>
+        </div>
+      </section>
+
+      <section class="details" aria-label="Converter details">
+        <article><span>01</span><h3>Private by design</h3><p>Everything happens inside your browser. Nothing is uploaded or stored.</p></article>
+        <article><span>02</span><h3>Made for the web</h3><p>WebP keeps images crisp while reducing the weight your visitors download.</p></article>
+        <article><span>03</span><h3>Batch friendly</h3><p>Convert several files together, then download them one by one or all at once.</p></article>
+      </section>
+    </main>
+
+    <footer>
+      <span>webpresso</span>
+      <p>Free, private, and made for faster websites.</p>
+    </footer>
+
+    <div class="toast" id="toast" role="status" aria-live="polite"></div>
+  </body>
+</html>
