@@ -1,0 +1,10 @@
+{
+  "name": "webpresso",
+  "version": "2.0.0",
+  "description": "Webpresso — Client-Side WebP Image Studio & 16-in-1 PDF Studio",
+  "private": true,
+  "scripts": {
+    "build": "node --check dist/pdf-engine.js && node --check dist/app.js && (cd dist && zip -q -FS ../dist.zip .htaccess index.html styles.css app.js pdf-engine.js) && echo 'Build verified & flat dist.zip created for cPanel!'",
+    "start": "npx --yes serve dist -s"
+  }
+}

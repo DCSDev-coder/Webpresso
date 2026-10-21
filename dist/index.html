@@ -6,109 +6,887 @@
     <meta name="theme-color" content="#111512" />
     <meta
       name="description"
-      content="Convert PNG, JPG, SVG and other browser-supported images to lightweight WebP files. Private, fast and entirely in your browser."
+      content="Convert PNG, JPG, SVG and other browser-supported images to lightweight WebP files, plus 16 client-side PDF tools (Merge, Split, Organize, Rotate, Compress, Repair, Sign, Watermark, Page Numbers, Protect, and Convert) privately in your browser."
     />
-    <title>Webpresso — Image to WebP Converter</title>
+    <title>Webpresso — Image to WebP &amp; Complete 16-in-1 Private PDF Suite</title>
+    <base href="/" />
     <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='8' fill='%23111512'/%3E%3Cpath d='M8 10h4l2 10 2-7 2 7 2-10h4' fill='none' stroke='%23c7ff4a' stroke-width='3' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E" />
-    <link rel="stylesheet" href="./styles.css" />
-    <script src="./app.js" defer></script>
+    <link rel="stylesheet" href="/styles.css" />
+    <script src="/pdf-engine.js" defer></script>
+    <script src="/app.js" defer></script>
   </head>
   <body>
     <header class="site-header">
-      <a class="brand" href="#" aria-label="Webpresso home">
+      <a class="brand" href="/image-studio" data-route-link="/image-studio" aria-label="Webpresso home">
         <span class="brand-mark" aria-hidden="true">W</span>
         <span>webpresso</span>
       </a>
+
+      <nav class="studio-nav" aria-label="Workspace studio switcher">
+        <ul class="studio-tabs" id="studio-tabs">
+          <li class="studio-tab-item active" data-studio-item="image">
+            <a
+              href="/image-studio"
+              class="studio-tab-btn"
+              id="tab-btn-image"
+              data-studio-target="image"
+              data-route-link="/image-studio"
+              aria-current="page"
+              aria-expanded="true"
+              aria-controls="image-studio-panel"
+            >
+              <svg viewBox="0 0 24 24" width="16" height="16" aria-hidden="true"><rect x="3" y="4" width="18" height="16" rx="2.5" fill="none" stroke="currentColor" stroke-width="1.8"/><circle cx="8.5" cy="9.5" r="1.5" fill="currentColor"/><path d="m21 15-4.5-4.5L7 20" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg>
+              <span>Image Studio</span>
+              <span class="tab-pill">WebP</span>
+            </a>
+          </li>
+          <li class="studio-tab-item" data-studio-item="pdf">
+            <a
+              href="/pdf/merge"
+              class="studio-tab-btn"
+              id="tab-btn-pdf"
+              data-studio-target="pdf"
+              data-route-link="/pdf-studio"
+              aria-expanded="false"
+              aria-controls="pdf-studio-panel"
+            >
+              <svg viewBox="0 0 24 24" width="16" height="16" aria-hidden="true"><path d="M14 3H7a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2V8z" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linejoin="round"/><path d="M14 3v5h5M9 13h6M9 17h4" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/></svg>
+              <span>PDF Studio</span>
+              <span class="tab-pill tab-pill-pdf">16 Tools</span>
+            </a>
+          </li>
+        </ul>
+      </nav>
+
       <div class="privacy-note">
         <span class="privacy-dot" aria-hidden="true"></span>
-        Your images never leave this device
+        Your files never leave this device
       </div>
     </header>
 
-    <main>
-      <section class="intro" aria-labelledby="page-title">
-        <p class="eyebrow">Image compressor</p>
-        <h1 id="page-title">Smaller images.<br /><span>Sharper websites.</span></h1>
-        <p class="intro-copy">Turn your images into lightweight WebP files—ready for faster pages, happier visitors, and less waiting.</p>
-      </section>
+    <!-- Persistent History Back Button + Breadcrumb + Section Permalink Bar -->
+    <nav class="route-bar" id="route-bar" aria-label="Section history and direct link">
+      <div class="route-bar-left">
+        <button
+          type="button"
+          class="back-nav-btn"
+          id="nav-back-btn"
+          disabled
+          title="Go back to previous section"
+          aria-label="Go back to previous section"
+        >
+          <svg viewBox="0 0 24 24" width="15" height="15" aria-hidden="true"><path d="M19 12H5m6-6-6 6 6 6" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+          <span id="nav-back-label">Back</span>
+        </button>
 
-      <section class="workspace" aria-label="WebP converter">
-        <div class="controls-card">
-          <div class="step-label"><span>01</span> Add your images</div>
-          <button class="drop-zone" id="drop-zone" type="button" aria-describedby="format-note">
-            <span class="upload-icon" aria-hidden="true">
-              <svg viewBox="0 0 24 24" width="28" height="28"><path d="M12 16V4m0 0L7.5 8.5M12 4l4.5 4.5M5 14v4a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2v-4" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg>
-            </span>
-            <strong>Drop images here</strong>
-            <span>or <u>choose from your device</u></span>
-            <span class="formats" id="format-note">PNG · JPG · JPEG · SVG · GIF · BMP · AVIF</span>
-          </button>
-          <input id="file-input" type="file" accept="image/*,.svg,.avif,.bmp" multiple hidden />
+        <ol class="route-breadcrumbs" id="route-breadcrumbs" aria-label="Breadcrumb">
+          <li><a href="/image-studio" data-route-link="/image-studio">Webpresso</a></li>
+          <li id="breadcrumb-studio"><a href="/image-studio" id="breadcrumb-studio-link">Image Studio</a></li>
+          <li id="breadcrumb-tool" hidden><span id="breadcrumb-tool-label">Merge PDF</span></li>
+        </ol>
+      </div>
 
-          <div class="settings">
-            <div class="step-label"><span>02</span> Tune the output</div>
-            <div class="quality-row">
-              <label for="quality">Quality</label>
-              <output id="quality-value" for="quality">82%</output>
-            </div>
-            <input id="quality" class="range" type="range" min="10" max="100" value="82" />
-            <div class="range-labels" aria-hidden="true"><span>Smaller file</span><span>Best quality</span></div>
+      <div class="route-bar-right">
+        <code class="route-slug" id="route-slug">/image-studio</code>
+        <button type="button" class="copy-link-btn" id="copy-route-link" title="Copy direct link to this section">
+          Copy section link
+        </button>
+      </div>
+    </nav>
 
-            <label class="toggle-row" for="resize-toggle">
-              <span>
-                <strong>Resize large images</strong>
-                <small>Keep original proportions</small>
-              </span>
-              <span class="switch"><input id="resize-toggle" type="checkbox" /><span aria-hidden="true"></span></span>
-            </label>
-
-            <div class="resize-fields" id="resize-fields" hidden>
-              <label for="max-width">Maximum width</label>
-              <div class="input-suffix"><input id="max-width" type="number" min="64" max="12000" value="1920" /><span>px</span></div>
-            </div>
-          </div>
-        </div>
-
-        <div class="results-card" id="results-card">
-          <div class="results-head">
+    <main id="studios-root">
+      <!-- ==================== STUDIO 1: IMAGE TO WEBP CONVERTER ==================== -->
+      <div id="image-studio-panel" class="studio-panel" data-studio-panel="image">
+        <div class="studio-inner">
+          <section class="intro" aria-labelledby="page-title">
             <div>
-              <p class="step-label"><span>03</span> Download WebP</p>
-              <h2>Your converted images</h2>
+              <p class="eyebrow">Image compressor</p>
+              <h1 id="page-title" tabindex="-1">Smaller images.<br /><span>Sharper websites.</span></h1>
             </div>
-            <button class="download-all" id="download-all" type="button" hidden>
-              Download all
-              <svg viewBox="0 0 24 24" width="18" height="18" aria-hidden="true"><path d="M12 4v11m0 0 4-4m-4 4-4-4M5 20h14" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
-            </button>
-          </div>
+            <p class="intro-copy">Turn your images into lightweight WebP files—ready for faster pages, happier visitors, and less waiting.</p>
+          </section>
 
-          <div class="empty-state" id="empty-state">
-            <div class="empty-visual" aria-hidden="true">
-              <span class="file-card file-back">JPG</span>
-              <span class="file-card file-front">WEBP</span>
-              <svg viewBox="0 0 24 24" width="24" height="24"><path d="M5 12h13m-4-4 4 4-4 4" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+          <section class="workspace" aria-label="WebP converter">
+            <div class="controls-card">
+              <div class="step-label"><span>01</span> Add your images</div>
+              <button class="drop-zone" id="drop-zone" type="button" aria-describedby="format-note">
+                <span class="upload-icon" aria-hidden="true">
+                  <svg viewBox="0 0 24 24" width="28" height="28"><path d="M12 16V4m0 0L7.5 8.5M12 4l4.5 4.5M5 14v4a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2v-4" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg>
+                </span>
+                <strong>Drop images here</strong>
+                <span>or <u>choose from your device</u></span>
+                <span class="formats" id="format-note">PNG · JPG · JPEG · SVG · GIF · BMP · AVIF</span>
+              </button>
+              <input id="file-input" type="file" accept="image/*,.svg,.avif,.bmp" multiple hidden />
+
+              <div class="settings">
+                <div class="step-label"><span>02</span> Tune the output</div>
+                <div class="quality-row">
+                  <label for="quality">Quality</label>
+                  <output id="quality-value" for="quality">82%</output>
+                </div>
+                <input id="quality" class="range" type="range" min="10" max="100" value="82" />
+                <div class="range-labels" aria-hidden="true"><span>Smaller file</span><span>Best quality</span></div>
+
+                <label class="toggle-row" for="resize-toggle">
+                  <span>
+                    <strong>Resize large images</strong>
+                    <small>Keep original proportions</small>
+                  </span>
+                  <span class="switch"><input id="resize-toggle" type="checkbox" /><span aria-hidden="true"></span></span>
+                </label>
+
+                <div class="resize-fields" id="resize-fields" hidden>
+                  <label for="max-width">Maximum width</label>
+                  <div class="input-suffix"><input id="max-width" type="number" min="64" max="12000" value="1920" /><span>px</span></div>
+                </div>
+              </div>
             </div>
-            <h2>Ready when you are</h2>
-            <p>Your converted images will appear here with a side-by-side size comparison.</p>
-          </div>
 
-          <div class="summary" id="summary" hidden aria-live="polite">
-            <div><span id="summary-count">0 images</span><strong id="summary-saved">0 KB saved</strong></div>
-            <div class="summary-track"><span id="summary-bar"></span></div>
-          </div>
-          <div class="result-list" id="result-list" aria-live="polite"></div>
+            <div class="results-card" id="results-card">
+              <div class="results-head">
+                <div>
+                  <p class="step-label"><span>03</span> Download WebP</p>
+                  <h2>Your converted images</h2>
+                </div>
+                <div class="results-actions">
+                  <button class="secondary-action" id="clear-images" type="button" hidden>Clear all</button>
+                  <button class="download-all" id="download-all" type="button" hidden>
+                    Download all
+                    <svg viewBox="0 0 24 24" width="18" height="18" aria-hidden="true"><path d="M12 4v11m0 0 4-4m-4 4-4-4M5 20h14" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+                  </button>
+                </div>
+              </div>
+
+              <div class="empty-state" id="empty-state">
+                <div class="empty-visual" aria-hidden="true">
+                  <span class="file-card file-back">JPG</span>
+                  <span class="file-card file-front">WEBP</span>
+                  <svg viewBox="0 0 24 24" width="24" height="24"><path d="M5 12h13m-4-4 4 4-4 4" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+                </div>
+                <h2>Ready when you are</h2>
+                <p>Your converted images will appear here with a side-by-side size comparison.</p>
+              </div>
+
+              <div class="summary" id="summary" hidden aria-live="polite">
+                <div><span id="summary-count">0 images</span><strong id="summary-saved">0 KB saved</strong></div>
+                <div class="summary-track"><span id="summary-bar"></span></div>
+              </div>
+              <div class="result-list" id="result-list" aria-live="polite"></div>
+            </div>
+          </section>
         </div>
-      </section>
+      </div>
+
+      <!-- ==================== STUDIO 2: COMPLETE 16-TOOL PDF STUDIO ==================== -->
+      <div id="pdf-studio-panel" class="studio-panel" data-studio-panel="pdf" hidden="until-found">
+        <div class="studio-inner">
+          <section class="intro pdf-intro" aria-labelledby="pdf-page-title">
+            <div>
+              <p class="eyebrow pdf-eyebrow">16-in-1 Local PDF Operating System</p>
+              <h2 class="hero-h1" id="pdf-page-title" tabindex="-1">Every PDF power tool.<br /><span>Zero server uploads.</span></h2>
+            </div>
+            <div>
+              <p class="intro-copy">All the tools of iLovePDF—upgraded with dedicated deep links per tool, a live Visual Page Workbench, 1-click multi-tool pipeline chaining, and 100% local execution.</p>
+              <div class="advantage-pills" aria-label="Webpresso advantages">
+                <span>⚡ 0s Upload Wait</span>
+                <span>🔒 100% On-Device</span>
+                <span>🔗 Multi-Tool Chaining</span>
+                <span>♾️ No Paywall Limits</span>
+              </div>
+            </div>
+          </section>
+
+          <!-- Category Filter Bar + Instant Tool Search -->
+          <section class="pdf-Command-bar" aria-label="Filter and search PDF tools">
+            <div class="pdf-category-pills" id="pdf-category-bar" role="toolbar" aria-label="PDF tool categories">
+              <a href="/pdf/category/all" class="cat-pill active" data-pdf-cat="all">All Tools (16)</a>
+              <a href="/pdf/category/organize" class="cat-pill" data-pdf-cat="organize">Organize PDF</a>
+              <a href="/pdf/category/optimize" class="cat-pill" data-pdf-cat="optimize">Optimize PDF</a>
+              <a href="/pdf/category/to-pdf" class="cat-pill" data-pdf-cat="to-pdf">Convert to PDF</a>
+              <a href="/pdf/category/from-pdf" class="cat-pill" data-pdf-cat="from-pdf">Convert from PDF</a>
+              <a href="/pdf/category/edit" class="cat-pill" data-pdf-cat="edit">Edit &amp; Sign</a>
+              <a href="/pdf/category/security" class="cat-pill" data-pdf-cat="security">Security &amp; Meta</a>
+            </div>
+            <div class="pdf-search-box">
+              <svg viewBox="0 0 24 24" width="16" height="16" aria-hidden="true"><circle cx="11" cy="11" r="7" fill="none" stroke="currentColor" stroke-width="2"/><path d="m20 20-3.5-3.5" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg>
+              <input id="pdf-tool-search" type="search" placeholder="Search 16 PDF tools (merge, sign, watermark…)" aria-label="Search PDF tools" />
+            </div>
+          </section>
+
+          <!-- 16-Tool Selector Grid (Each tool has its own semantic <a href="/pdf/..."> link) -->
+          <section class="pdf-tools-ribbon" aria-label="Select a PDF tool">
+            <div class="pdf-tool-grid" id="pdf-tool-grid" role="tablist" aria-label="PDF toolkit">
+              <!-- ORGANIZE -->
+              <a href="/pdf/merge" class="pdf-tool-card active" role="tab" data-pdf-tool="merge" data-tool-cat="organize" aria-selected="true">
+                <span class="pdf-tool-icon" data-accent="coral" aria-hidden="true">
+                  <svg viewBox="0 0 24 24" width="20" height="20"><path d="M8 6H5a2 2 0 0 0-2 2v9a2 2 0 0 0 2 2h9a2 2 0 0 0 2-2v-3M10 4h9a2 2 0 0 1 2 2v9a2 2 0 0 1-2 2h-9a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2z" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg>
+                </span>
+                <span class="pdf-tool-meta">
+                  <strong>Merge PDF</strong>
+                  <small>Combine multiple PDFs into one</small>
+                </span>
+              </a>
+
+              <a href="/pdf/split" class="pdf-tool-card" role="tab" data-pdf-tool="split" data-tool-cat="organize" aria-selected="false">
+                <span class="pdf-tool-icon" data-accent="amber" aria-hidden="true">
+                  <svg viewBox="0 0 24 24" width="20" height="20"><path d="M16 3h5v5M4 20 21 3M21 16v5h-5M15 15l6 6M4 4l5 5" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg>
+                </span>
+                <span class="pdf-tool-meta">
+                  <strong>Split PDF</strong>
+                  <small>Extract ranges or burst all pages</small>
+                </span>
+              </a>
+
+              <a href="/pdf/organize" class="pdf-tool-card" role="tab" data-pdf-tool="organize" data-tool-cat="organize" aria-selected="false">
+                <span class="pdf-tool-icon" data-accent="coral" aria-hidden="true">
+                  <svg viewBox="0 0 24 24" width="20" height="20"><rect x="3" y="3" width="7" height="7" rx="1.5" fill="none" stroke="currentColor" stroke-width="1.8"/><rect x="14" y="3" width="7" height="7" rx="1.5" fill="none" stroke="currentColor" stroke-width="1.8"/><rect x="3" y="14" width="7" height="7" rx="1.5" fill="none" stroke="currentColor" stroke-width="1.8"/><rect x="14" y="14" width="7" height="7" rx="1.5" fill="none" stroke="currentColor" stroke-width="1.8"/></svg>
+                </span>
+                <span class="pdf-tool-meta">
+                  <strong>Organize Pages</strong>
+                  <small>Reorder, duplicate, delete &amp; blank</small>
+                </span>
+              </a>
+
+              <a href="/pdf/rotate" class="pdf-tool-card" role="tab" data-pdf-tool="rotate" data-tool-cat="organize" aria-selected="false">
+                <span class="pdf-tool-icon" data-accent="amber" aria-hidden="true">
+                  <svg viewBox="0 0 24 24" width="20" height="20"><path d="M21 12a9 9 0 1 1-9-9c2.52 0 4.93 1 6.74 2.74L21 8" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/><path d="M21 3v5h-5" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg>
+                </span>
+                <span class="pdf-tool-meta">
+                  <strong>Rotate PDF</strong>
+                  <small>Rotate 90°, 180°, or 270° cleanly</small>
+                </span>
+              </a>
+
+              <!-- OPTIMIZE -->
+              <a href="/pdf/compress" class="pdf-tool-card" role="tab" data-pdf-tool="compress" data-tool-cat="optimize" aria-selected="false">
+                <span class="pdf-tool-icon" data-accent="lime" aria-hidden="true">
+                  <svg viewBox="0 0 24 24" width="20" height="20"><path d="M4 14h6v6M20 10h-6V4M14 10l7-7M3 21l7-7" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg>
+                </span>
+                <span class="pdf-tool-meta">
+                  <strong>Compress PDF</strong>
+                  <small>Shrink file weight, keep clarity</small>
+                </span>
+              </a>
+
+              <a href="/pdf/repair" class="pdf-tool-card" role="tab" data-pdf-tool="repair" data-tool-cat="optimize" aria-selected="false">
+                <span class="pdf-tool-icon" data-accent="lime" aria-hidden="true">
+                  <svg viewBox="0 0 24 24" width="20" height="20"><path d="M14.7 6.3a1 1 0 0 0 0 1.4l1.6 1.6a1 1 0 0 0 1.4 0l3.77-3.77a6 6 0 0 1-7.94 7.94l-6.91 6.91a2.12 2.12 0 0 1-3-3l6.91-6.91a6 6 0 0 1 7.94-7.94l-3.76 3.76z" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg>
+                </span>
+                <span class="pdf-tool-meta">
+                  <strong>Repair PDF</strong>
+                  <small>Rebuild XRef &amp; sanitize streams</small>
+                </span>
+              </a>
+
+              <a href="/pdf/grayscale" class="pdf-tool-card" role="tab" data-pdf-tool="grayscale" data-tool-cat="optimize" aria-selected="false">
+                <span class="pdf-tool-icon" data-accent="lime" aria-hidden="true">
+                  <svg viewBox="0 0 24 24" width="20" height="20"><circle cx="12" cy="12" r="9" fill="none" stroke="currentColor" stroke-width="1.8"/><path d="M12 3v18" stroke="currentColor" stroke-width="1.8"/></svg>
+                </span>
+                <span class="pdf-tool-meta">
+                  <strong>Grayscale &amp; Scan</strong>
+                  <small>B&amp;W print &amp; high-contrast scan</small>
+                </span>
+              </a>
+
+              <!-- CONVERT TO PDF -->
+              <a href="/pdf/img-to-pdf" class="pdf-tool-card" role="tab" data-pdf-tool="img-to-pdf" data-tool-cat="to-pdf" aria-selected="false">
+                <span class="pdf-tool-icon" data-accent="sky" aria-hidden="true">
+                  <svg viewBox="0 0 24 24" width="20" height="20"><rect x="3" y="3" width="18" height="18" rx="3" fill="none" stroke="currentColor" stroke-width="1.8"/><circle cx="8.5" cy="8.5" r="1.5" fill="currentColor"/><path d="m21 15-5-5L5 21" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg>
+                </span>
+                <span class="pdf-tool-meta">
+                  <strong>Images to PDF</strong>
+                  <small>JPG, PNG, WebP &amp; SVG to PDF</small>
+                </span>
+              </a>
+
+              <a href="/pdf/text-to-pdf" class="pdf-tool-card" role="tab" data-pdf-tool="text-to-pdf" data-tool-cat="to-pdf" aria-selected="false">
+                <span class="pdf-tool-icon" data-accent="sky" aria-hidden="true">
+                  <svg viewBox="0 0 24 24" width="20" height="20"><path d="M4 7V4h16v3M9 20h6M12 4v16" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg>
+                </span>
+                <span class="pdf-tool-meta">
+                  <strong>HTML / Text to PDF</strong>
+                  <small>Typeset Markdown, HTML &amp; notes</small>
+                </span>
+              </a>
+
+              <!-- CONVERT FROM PDF -->
+              <a href="/pdf/pdf-to-img" class="pdf-tool-card" role="tab" data-pdf-tool="pdf-to-img" data-tool-cat="from-pdf" aria-selected="false">
+                <span class="pdf-tool-icon" data-accent="violet" aria-hidden="true">
+                  <svg viewBox="0 0 24 24" width="20" height="20"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linejoin="round"/><path d="M14 2v6h6M12 18v-6M9 15l3 3 3-3" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg>
+                </span>
+                <span class="pdf-tool-meta">
+                  <strong>PDF to Images</strong>
+                  <small>Export pages as WebP, PNG, JPG</small>
+                </span>
+              </a>
+
+              <a href="/pdf/pdf-to-text" class="pdf-tool-card" role="tab" data-pdf-tool="pdf-to-text" data-tool-cat="from-pdf" aria-selected="false">
+                <span class="pdf-tool-icon" data-accent="violet" aria-hidden="true">
+                  <svg viewBox="0 0 24 24" width="20" height="20"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z" fill="none" stroke="currentColor" stroke-width="1.8"/><path d="M8 13h8M8 17h5M8 9h2" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/></svg>
+                </span>
+                <span class="pdf-tool-meta">
+                  <strong>PDF to Text &amp; JSON</strong>
+                  <small>Extract text, Markdown &amp; JSON</small>
+                </span>
+              </a>
+
+              <!-- EDIT & SIGN -->
+              <a href="/pdf/page-numbers" class="pdf-tool-card" role="tab" data-pdf-tool="page-numbers" data-tool-cat="edit" aria-selected="false">
+                <span class="pdf-tool-icon" data-accent="amber" aria-hidden="true">
+                  <svg viewBox="0 0 24 24" width="20" height="20"><rect x="4" y="3" width="16" height="18" rx="2" fill="none" stroke="currentColor" stroke-width="1.8"/><path d="M9 17h6M10 9h4M12 7v4" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/></svg>
+                </span>
+                <span class="pdf-tool-meta">
+                  <strong>Page Numbers</strong>
+                  <small>Stamp custom headers &amp; footers</small>
+                </span>
+              </a>
+
+              <a href="/pdf/watermark" class="pdf-tool-card" role="tab" data-pdf-tool="watermark" data-tool-cat="edit" aria-selected="false">
+                <span class="pdf-tool-icon" data-accent="coral" aria-hidden="true">
+                  <svg viewBox="0 0 24 24" width="20" height="20"><path d="M12 2.69l5.66 5.66a8 8 0 1 1-11.31 0z" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linejoin="round"/></svg>
+                </span>
+                <span class="pdf-tool-meta">
+                  <strong>Add Watermark</strong>
+                  <small>Diagonal, tiled, or banner stamps</small>
+                </span>
+              </a>
+
+              <a href="/pdf/sign" class="pdf-tool-card" role="tab" data-pdf-tool="sign" data-tool-cat="edit" aria-selected="false">
+                <span class="pdf-tool-icon" data-accent="sky" aria-hidden="true">
+                  <svg viewBox="0 0 24 24" width="20" height="20"><path d="M17 3a2.85 2.83 0 1 1 4 4L7.5 20.5 2 22l1.5-5.5Z" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linejoin="round"/></svg>
+                </span>
+                <span class="pdf-tool-meta">
+                  <strong>Sign PDF</strong>
+                  <small>Draw or type signature &amp; date</small>
+                </span>
+              </a>
+
+              <a href="/pdf/crop" class="pdf-tool-card" role="tab" data-pdf-tool="crop" data-tool-cat="edit" aria-selected="false">
+                <span class="pdf-tool-icon" data-accent="amber" aria-hidden="true">
+                  <svg viewBox="0 0 24 24" width="20" height="20"><path d="M6 2v14a2 2 0 0 0 2 2h14M18 22V8a2 2 0 0 0-2-2H2" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg>
+                </span>
+                <span class="pdf-tool-meta">
+                  <strong>Crop &amp; Margins</strong>
+                  <small>Trim edges &amp; frame PDF pages</small>
+                </span>
+              </a>
+
+              <!-- SECURITY & METADATA -->
+              <a href="/pdf/protect" class="pdf-tool-card" role="tab" data-pdf-tool="protect" data-tool-cat="security" aria-selected="false">
+                <span class="pdf-tool-icon" data-accent="lime" aria-hidden="true">
+                  <svg viewBox="0 0 24 24" width="20" height="20"><rect x="3" y="11" width="18" height="11" rx="2" fill="none" stroke="currentColor" stroke-width="1.8"/><path d="M7 11V7a5 5 0 0 1 10 0v4" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/></svg>
+                </span>
+                <span class="pdf-tool-meta">
+                  <strong>Protect &amp; Metadata</strong>
+                  <small>Tamper-flatten, PIN &amp; PDF Info</small>
+                </span>
+              </a>
+            </div>
+          </section>
+
+          <!-- PDF Workspace -->
+          <section class="workspace pdf-workspace" id="pdf-workspace-card" aria-label="PDF Studio workspace">
+            <div class="controls-card pdf-controls-card">
+              <div class="step-head-row">
+                <div class="step-label"><span>01</span> <span id="pdf-step1-title">Add PDF files to merge</span></div>
+                <button type="button" class="sample-btn" id="pdf-sample-btn" title="Generate a multi-page sample PDF to test immediately">
+                  + Load 2 sample PDFs
+                </button>
+              </div>
+
+              <button class="drop-zone pdf-drop-zone" id="pdf-drop-zone" type="button" aria-describedby="pdf-format-note">
+                <span class="upload-icon pdf-upload-icon" aria-hidden="true">
+                  <svg viewBox="0 0 24 24" width="28" height="28"><path d="M12 16V4m0 0L7.5 8.5M12 4l4.5 4.5M5 14v4a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2v-4" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg>
+                </span>
+                <strong id="pdf-drop-title">Drop PDF files here</strong>
+                <span>or <u>choose from your device</u></span>
+                <span class="formats" id="pdf-format-note">PDF DOCUMENTS · REORDERABLE MULTI-FILE MERGE</span>
+              </button>
+              <input id="pdf-file-input" type="file" accept="application/pdf,.pdf" multiple hidden />
+
+              <!-- Queued Source Files (Reorder / Remove) -->
+              <div class="pdf-queue-wrap" id="pdf-queue-wrap" hidden>
+                <div class="queue-header">
+                  <span id="pdf-queue-count">0 files selected</span>
+                  <button type="button" class="text-link-btn" id="pdf-clear-queue">Clear queue</button>
+                </div>
+                <div class="pdf-source-list" id="pdf-source-list" aria-live="polite"></div>
+              </div>
+
+              <!-- Better-Than-iLovePDF Feature: Interactive Visual Page Workbench -->
+              <div class="page-workbench" id="pdf-page-workbench" hidden>
+                <div class="workbench-head">
+                  <span>Visual Page Workbench (<strong id="workbench-page-count">0</strong> pages)</span>
+                  <div class="workbench-actions">
+                    <button type="button" class="mini-pill-btn" id="workbench-add-blank" title="Insert a blank page">+ Blank page</button>
+                    <button type="button" class="mini-pill-btn" id="workbench-reset" title="Reset page edits">Reset</button>
+                  </div>
+                </div>
+                <div class="workbench-grid" id="workbench-grid" aria-label="Interactive page thumbnails"></div>
+              </div>
+
+              <!-- Tool-Specific Settings (Step 02) -->
+              <div class="settings pdf-settings">
+                <div class="step-label"><span>02</span> <span id="pdf-step2-title">Merge options</span></div>
+
+                <!-- 1. Merge PDF -->
+                <div class="pdf-tool-config" id="config-merge" data-tool-config="merge">
+                  <label class="field-label" for="merge-filename">Output filename</label>
+                  <div class="input-suffix">
+                    <input id="merge-filename" type="text" value="merged-document" placeholder="merged-document" />
+                    <span>.pdf</span>
+                  </div>
+                  <p class="config-hint">Tip: Reorder files in the queue above with ↑ and ↓ before merging.</p>
+                </div>
+
+                <!-- 2. Split PDF -->
+                <div class="pdf-tool-config" id="config-split" data-tool-config="split" hidden>
+                  <div class="segmented-control" role="radiogroup" aria-label="Split mode">
+                    <button type="button" class="seg-btn active" data-split-mode="ranges" aria-checked="true" role="radio">Custom ranges</button>
+                    <button type="button" class="seg-btn" data-split-mode="all" aria-checked="false" role="radio">Extract all pages</button>
+                  </div>
+                  <div id="split-range-fields">
+                    <label class="field-label" for="split-ranges">Page ranges</label>
+                    <div class="input-suffix">
+                      <input id="split-ranges" type="text" value="1-2" placeholder="e.g. 1-3, 5, 7-9" />
+                      <span id="split-total-pages-hint">pages</span>
+                    </div>
+                    <label class="toggle-row compact-toggle" for="split-merge-toggle">
+                      <span>
+                        <strong>Merge all ranges into one PDF</strong>
+                        <small>Uncheck to export separate PDFs per range</small>
+                      </span>
+                      <span class="switch"><input id="split-merge-toggle" type="checkbox" /><span aria-hidden="true"></span></span>
+                    </label>
+                  </div>
+                </div>
+
+                <!-- 3. Organize Pages -->
+                <div class="pdf-tool-config" id="config-organize" data-tool-config="organize" hidden>
+                  <label class="field-label" for="organize-filter">Quick batch page filter</label>
+                  <select id="organize-filter" class="select-input">
+                    <option value="all" selected>Keep custom workbench order</option>
+                    <option value="odd">Keep odd pages only (1, 3, 5…)</option>
+                    <option value="even">Keep even pages only (2, 4, 6…)</option>
+                    <option value="reverse">Reverse entire page order</option>
+                  </select>
+                  <p class="config-hint">Use the Visual Page Workbench above to rotate (↻), reorder (←/→), duplicate (⧉), or delete (×) individual pages.</p>
+                </div>
+
+                <!-- 4. Rotate PDF -->
+                <div class="pdf-tool-config" id="config-rotate" data-tool-config="rotate" hidden>
+                  <div class="form-grid-2">
+                    <div>
+                      <label class="field-label" for="rotate-angle">Rotation angle</label>
+                      <select id="rotate-angle" class="select-input">
+                        <option value="90" selected>90° Clockwise (↻)</option>
+                        <option value="180">180° Upside Down</option>
+                        <option value="270">270° Counter-Clockwise (↺)</option>
+                      </select>
+                    </div>
+                    <div>
+                      <label class="field-label" for="rotate-target">Apply to pages</label>
+                      <select id="rotate-target" class="select-input">
+                        <option value="all" selected>All pages</option>
+                        <option value="portrait">Portrait pages only</option>
+                        <option value="landscape">Landscape pages only</option>
+                        <option value="odd">Odd pages only</option>
+                        <option value="even">Even pages only</option>
+                      </select>
+                    </div>
+                  </div>
+                </div>
+
+                <!-- 5. Compress PDF -->
+                <div class="pdf-tool-config" id="config-compress" data-tool-config="compress" hidden>
+                  <div class="compress-presets" role="radiogroup" aria-label="Compression level">
+                    <label class="preset-option">
+                      <input type="radio" name="compress-level" value="extreme" />
+                      <span class="preset-body">
+                        <strong>Extreme Compression</strong>
+                        <small>Highest size reduction (~96 DPI)</small>
+                      </span>
+                      <span class="preset-badge">Max save</span>
+                    </label>
+                    <label class="preset-option">
+                      <input type="radio" name="compress-level" value="recommended" checked />
+                      <span class="preset-body">
+                        <strong>Recommended Compression</strong>
+                        <small>Sharp quality &amp; strong reduction (~144 DPI)</small>
+                      </span>
+                      <span class="preset-badge preset-badge-lime">Best balance</span>
+                    </label>
+                    <label class="preset-option">
+                      <input type="radio" name="compress-level" value="less" />
+                      <span class="preset-body">
+                        <strong>Less Compression</strong>
+                        <small>Print-grade clarity (~200 DPI)</small>
+                      </span>
+                      <span class="preset-badge">High DPI</span>
+                    </label>
+                  </div>
+                </div>
+
+                <!-- 6. Repair PDF -->
+                <div class="pdf-tool-config" id="config-repair" data-tool-config="repair" hidden>
+                  <p class="config-hint">Reconstructs damaged cross-reference tables (<code>xref</code>), recovers readable page streams, strips corrupted metadata, and exports a clean PDF 1.4 binary.</p>
+                </div>
+
+                <!-- 7. Grayscale & Scan -->
+                <div class="pdf-tool-config" id="config-grayscale" data-tool-config="grayscale" hidden>
+                  <label class="field-label" for="grayscale-mode">Color conversion profile</label>
+                  <select id="grayscale-mode" class="select-input">
+                    <option value="grayscale" selected>True Grayscale (Ink-saving B&amp;W)</option>
+                    <option value="bw-scan">High-Contrast Document Scan (Crisp text)</option>
+                    <option value="sepia">Warm Archival Sepia Paper</option>
+                  </select>
+                </div>
+
+                <!-- 8. Images to PDF -->
+                <div class="pdf-tool-config" id="config-img-to-pdf" data-tool-config="img-to-pdf" hidden>
+                  <div class="form-grid-2">
+                    <div>
+                      <label class="field-label" for="img-pdf-pagesize">Page size</label>
+                      <select id="img-pdf-pagesize" class="select-input">
+                        <option value="a4" selected>A4 (210 × 297 mm)</option>
+                        <option value="letter">US Letter (8.5 × 11 in)</option>
+                        <option value="fit">Fit to Image size</option>
+                      </select>
+                    </div>
+                    <div>
+                      <label class="field-label" for="img-pdf-orientation">Orientation</label>
+                      <select id="img-pdf-orientation" class="select-input">
+                        <option value="auto" selected>Auto (Match image)</option>
+                        <option value="portrait">Portrait</option>
+                        <option value="landscape">Landscape</option>
+                      </select>
+                    </div>
+                  </div>
+                  <div class="form-row-top">
+                    <label class="field-label" for="img-pdf-margin">Page margins</label>
+                    <select id="img-pdf-margin" class="select-input">
+                      <option value="none">No margin (Full bleed)</option>
+                      <option value="small" selected>Small margin (24 pt)</option>
+                      <option value="large">Big margin (48 pt)</option>
+                    </select>
+                  </div>
+                  <div class="quality-row form-row-top">
+                    <label for="img-pdf-quality">Image embedding quality</label>
+                    <output id="img-pdf-quality-val" for="img-pdf-quality">86%</output>
+                  </div>
+                  <input id="img-pdf-quality" class="range" type="range" min="40" max="100" value="86" />
+                </div>
+
+                <!-- 9. Text / Markdown / HTML to PDF -->
+                <div class="pdf-tool-config" id="config-text-to-pdf" data-tool-config="text-to-pdf" hidden>
+                  <label class="field-label" for="text-pdf-editor">Document content (Markdown, HTML, or Plain Text)</label>
+                  <textarea id="text-pdf-editor" class="code-textarea" rows="6" placeholder="# Executive Summary&#10;&#10;Type or paste Markdown, HTML, or plain text here..."><h1>Webpresso Executive Brief</h1>
+<p>This PDF was typeset directly inside your browser with zero external server uploads.</p>
+<h2>Key Highlights</h2>
+<ul>
+  <li>100% client-side privacy and instant generation</li>
+  <li>Supports headings, bullet lists, and automatic pagination</li>
+  <li>Ready to chain into Watermark, Page Numbers, or Sign PDF</li>
+</ul></textarea>
+                  <div class="form-grid-2 form-row-top">
+                    <div>
+                      <label class="field-label" for="text-pdf-font">Typography</label>
+                      <select id="text-pdf-font" class="select-input">
+                        <option value="sans" selected>Modern Sans (Inter)</option>
+                        <option value="serif">Editorial Serif (Georgia)</option>
+                        <option value="mono">Technical Monospace</option>
+                      </select>
+                    </div>
+                    <div>
+                      <label class="field-label" for="text-pdf-theme">Paper theme</label>
+                      <select id="text-pdf-theme" class="select-input">
+                        <option value="light" selected>Classic White Paper</option>
+                        <option value="dark">Executive Dark Slate</option>
+                      </select>
+                    </div>
+                  </div>
+                </div>
+
+                <!-- 10. PDF to Images -->
+                <div class="pdf-tool-config" id="config-pdf-to-img" data-tool-config="pdf-to-img" hidden>
+                  <div class="form-grid-2">
+                    <div>
+                      <label class="field-label" for="pdf-img-format">Image format</label>
+                      <select id="pdf-img-format" class="select-input">
+                        <option value="webp" selected>WebP (Smallest &amp; sharp)</option>
+                        <option value="png">PNG (Lossless)</option>
+                        <option value="jpeg">JPG (Universal)</option>
+                      </select>
+                    </div>
+                    <div>
+                      <label class="field-label" for="pdf-img-scale">Resolution</label>
+                      <select id="pdf-img-scale" class="select-input">
+                        <option value="1">Standard (1x)</option>
+                        <option value="2" selected>High / Retina (2x)</option>
+                        <option value="3">Ultra Print (3x)</option>
+                      </select>
+                    </div>
+                  </div>
+                  <div class="quality-row form-row-top">
+                    <label for="pdf-img-quality">Output quality</label>
+                    <output id="pdf-img-quality-val" for="pdf-img-quality">85%</output>
+                  </div>
+                  <input id="pdf-img-quality" class="range" type="range" min="10" max="100" value="85" />
+                </div>
+
+                <!-- 11. PDF to Text / JSON -->
+                <div class="pdf-tool-config" id="config-pdf-to-text" data-tool-config="pdf-to-text" hidden>
+                  <label class="field-label" for="pdf-text-format">Extraction format</label>
+                  <select id="pdf-text-format" class="select-input">
+                    <option value="txt" selected>Plain Text (.txt)</option>
+                    <option value="md">Structured Markdown (.md)</option>
+                    <option value="json">Page-by-Page JSON (.json)</option>
+                  </select>
+                </div>
+
+                <!-- 12. Add Page Numbers -->
+                <div class="pdf-tool-config" id="config-page-numbers" data-tool-config="page-numbers" hidden>
+                  <div class="form-grid-2">
+                    <div>
+                      <label class="field-label" for="pagenum-pos">Position</label>
+                      <select id="pagenum-pos" class="select-input">
+                        <option value="bottom-center" selected>Bottom Center</option>
+                        <option value="bottom-right">Bottom Right</option>
+                        <option value="bottom-left">Bottom Left</option>
+                        <option value="top-right">Top Right</option>
+                        <option value="top-center">Top Center</option>
+                      </select>
+                    </div>
+                    <div>
+                      <label class="field-label" for="pagenum-format">Number style</label>
+                      <select id="pagenum-format" class="select-input">
+                        <option value="full" selected>Page 1 of N</option>
+                        <option value="short">1 / N</option>
+                        <option value="dash">— 1 —</option>
+                        <option value="number">1</option>
+                      </select>
+                    </div>
+                  </div>
+                  <div class="form-grid-2 form-row-top">
+                    <div>
+                      <label class="field-label" for="pagenum-start">Start at number</label>
+                      <input id="pagenum-start" class="select-input" type="number" min="1" max="9999" value="1" />
+                    </div>
+                    <div>
+                      <label class="field-label" for="pagenum-size">Font size (pt)</label>
+                      <input id="pagenum-size" class="select-input" type="number" min="8" max="28" value="12" />
+                    </div>
+                  </div>
+                </div>
+
+                <!-- 13. Add Watermark -->
+                <div class="pdf-tool-config" id="config-watermark" data-tool-config="watermark" hidden>
+                  <label class="field-label" for="watermark-text">Watermark text</label>
+                  <div class="input-suffix">
+                    <input id="watermark-text" type="text" value="CONFIDENTIAL" placeholder="CONFIDENTIAL / DRAFT" />
+                  </div>
+                  <div class="form-grid-2 form-row-top">
+                    <div>
+                      <label class="field-label" for="watermark-style">Stamp layout</label>
+                      <select id="watermark-style" class="select-input">
+                        <option value="diagonal" selected>Diagonal (-42°)</option>
+                        <option value="tiled">Repeating Tiled Grid</option>
+                        <option value="banner">Top Header Banner</option>
+                        <option value="horizontal">Centered Horizontal</option>
+                      </select>
+                    </div>
+                    <div>
+                      <label class="field-label" for="watermark-color">Stamp color</label>
+                      <select id="watermark-color" class="select-input">
+                        <option value="red" selected>Crimson Red</option>
+                        <option value="ink">Slate Dark Ink</option>
+                        <option value="blue">Royal Blue</option>
+                        <option value="lime">Webpresso Lime</option>
+                      </select>
+                    </div>
+                  </div>
+                  <div class="quality-row form-row-top">
+                    <label for="watermark-opacity">Watermark opacity</label>
+                    <output id="watermark-opacity-val" for="watermark-opacity">32%</output>
+                  </div>
+                  <input id="watermark-opacity" class="range" type="range" min="10" max="90" value="32" />
+                </div>
+
+                <!-- 14. Sign PDF -->
+                <div class="pdf-tool-config" id="config-sign" data-tool-config="sign" hidden>
+                  <div class="sig-pad-header">
+                    <span class="field-label">Draw signature below (or type name)</span>
+                    <button type="button" class="text-link-btn" id="sig-clear-btn">Clear pad</button>
+                  </div>
+                  <canvas id="sig-canvas" class="sig-canvas" width="420" height="120" aria-label="Draw your signature"></canvas>
+                  <div class="form-grid-2 form-row-top">
+                    <div>
+                      <label class="field-label" for="sig-signer-name">Signer name</label>
+                      <input id="sig-signer-name" class="select-input" type="text" value="Alex Morgan" placeholder="Full Name" />
+                    </div>
+                    <div>
+                      <label class="field-label" for="sig-position">Stamp placement</label>
+                      <select id="sig-position" class="select-input">
+                        <option value="bottom-right" selected>Bottom Right</option>
+                        <option value="bottom-left">Bottom Left</option>
+                        <option value="bottom-center">Bottom Center</option>
+                        <option value="center">Center of Page</option>
+                      </select>
+                    </div>
+                  </div>
+                  <div class="form-grid-2 form-row-top">
+                    <div>
+                      <label class="field-label" for="sig-target-page">Target pages</label>
+                      <select id="sig-target-page" class="select-input">
+                        <option value="last" selected>Last page only</option>
+                        <option value="first">First page only</option>
+                        <option value="all">Every page</option>
+                      </select>
+                    </div>
+                    <div>
+                      <label class="field-label" for="sig-ink-color">Ink color</label>
+                      <select id="sig-ink-color" class="select-input">
+                        <option value="#111512" selected>Midnight Black</option>
+                        <option value="#1d4ed8">Royal Blue Ink</option>
+                        <option value="#b91c1c">Crimson Ink</option>
+                      </select>
+                    </div>
+                  </div>
+                </div>
+
+                <!-- 15. Crop & Margins -->
+                <div class="pdf-tool-config" id="config-crop" data-tool-config="crop" hidden>
+                  <div class="quality-row">
+                    <label for="crop-margin">Trim / frame inset margin</label>
+                    <output id="crop-margin-val" for="crop-margin">32 pt</output>
+                  </div>
+                  <input id="crop-margin" class="range" type="range" min="8" max="110" value="32" />
+                  <label class="toggle-row compact-toggle" for="crop-border-toggle">
+                    <span>
+                      <strong>Draw crisp crop border rule</strong>
+                      <small>Adds a clean architectural frame around trimmed content</small>
+                    </span>
+                    <span class="switch"><input id="crop-border-toggle" type="checkbox" checked /><span aria-hidden="true"></span></span>
+                  </label>
+                </div>
+
+                <!-- 16. Protect & Metadata -->
+                <div class="pdf-tool-config" id="config-protect" data-tool-config="protect" hidden>
+                  <div class="form-grid-2">
+                    <div>
+                      <label class="field-label" for="protect-title">PDF Document Title</label>
+                      <input id="protect-title" class="select-input" type="text" value="Confidential Record" />
+                    </div>
+                    <div>
+                      <label class="field-label" for="protect-author">Author / Organization</label>
+                      <input id="protect-author" class="select-input" type="text" value="Webpresso Security" />
+                    </div>
+                  </div>
+                  <div class="form-grid-2 form-row-top">
+                    <div>
+                      <label class="field-label" for="protect-pin">Access PIN / Seal</label>
+                      <input id="protect-pin" class="select-input" type="password" placeholder="Optional PIN code" />
+                    </div>
+                    <div>
+                      <label class="field-label" for="protect-banner">Security Classification</label>
+                      <select id="protect-banner" class="select-input">
+                        <option value="CONFIDENTIAL · TAMPER-FLATTENED" selected>Confidential Seal</option>
+                        <option value="INTERNAL USE ONLY · READ-ONLY">Internal Use Only</option>
+                        <option value="VERIFIED ORIGINAL · LOCKED">Verified Original</option>
+                      </select>
+                    </div>
+                  </div>
+                  <p class="config-hint">Flattens interactive text and layers into non-editable page bitmaps and embeds your metadata and security seal.</p>
+                </div>
+
+                <button type="button" class="primary-process-btn" id="pdf-process-btn">
+                  <span id="pdf-process-btn-label">Merge PDF</span>
+                  <svg viewBox="0 0 24 24" width="18" height="18" aria-hidden="true"><path d="M5 12h14m-5-5 5 5-5 5" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+                </button>
+              </div>
+            </div>
+
+            <!-- Right Column: PDF Results & Pipeline Chaining -->
+            <div class="results-card" id="pdf-results-card">
+              <div class="results-head">
+                <div>
+                  <p class="step-label"><span>03</span> Download &amp; Pipeline</p>
+                  <h2 id="pdf-results-heading" tabindex="-1">Your processed PDF files</h2>
+                </div>
+                <div class="results-actions">
+                  <button class="chain-action" id="pdf-chain-btn" type="button" hidden title="Use this output PDF as the input for another tool (Watermark, Sign, Compress, etc.)">
+                    Chain to next tool ↳
+                  </button>
+                  <button class="secondary-action" id="pdf-clear-results" type="button" hidden>Clear</button>
+                  <button class="download-all" id="pdf-download-all" type="button" hidden>
+                    Download all
+                    <svg viewBox="0 0 24 24" width="18" height="18" aria-hidden="true"><path d="M12 4v11m0 0 4-4m-4 4-4-4M5 20h14" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+                  </button>
+                </div>
+              </div>
+
+              <div class="empty-state" id="pdf-empty-state">
+                <div class="empty-visual" aria-hidden="true">
+                  <span class="file-card file-back">PDF</span>
+                  <span class="file-card file-front" id="pdf-empty-front-badge">MERGE</span>
+                  <svg viewBox="0 0 24 24" width="24" height="24"><path d="M5 12h13m-4-4 4 4-4 4" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+                </div>
+                <h2 id="pdf-empty-title">Ready to process your PDF</h2>
+                <p id="pdf-empty-copy">Add your files on the left or click "+ Load sample PDF" to test any of the 16 tools right away.</p>
+              </div>
+
+              <div class="summary" id="pdf-summary" hidden aria-live="polite">
+                <div><span id="pdf-summary-count">0 files</span><strong id="pdf-summary-saved">Ready</strong></div>
+                <div class="summary-track"><span id="pdf-summary-bar"></span></div>
+              </div>
+
+              <div class="result-list" id="pdf-result-list" aria-live="polite"></div>
+
+              <!-- Live Extracted Text Preview (shown when using PDF to Text / JSON) -->
+              <div class="extracted-text-panel" id="extracted-text-panel" hidden>
+                <div class="extracted-head">
+                  <span>Extracted Content Preview</span>
+                  <button type="button" class="mini-pill-btn" id="copy-extracted-btn">Copy text</button>
+                </div>
+                <pre id="extracted-text-output"></pre>
+              </div>
+            </div>
+          </section>
+        </div>
+      </div>
 
       <section class="details" aria-label="Converter details">
-        <article><span>01</span><h3>Private by design</h3><p>Everything happens inside your browser. Nothing is uploaded or stored.</p></article>
-        <article><span>02</span><h3>Made for the web</h3><p>WebP keeps images crisp while reducing the weight your visitors download.</p></article>
-        <article><span>03</span><h3>Batch friendly</h3><p>Convert several files together, then download them one by one or all at once.</p></article>
+        <article><span>01</span><h3>Zero uploads, zero wait</h3><p>Unlike cloud PDF portals that upload your sensitive files to remote queues, Webpresso processes everything locally in milliseconds.</p></article>
+        <article><span>02</span><h3>Visual Workbench &amp; Chaining</h3><p>Inspect and rotate individual pages visually, then chain your output from Merge → Watermark → Sign → Compress in one click.</p></article>
+        <article><span>03</span><h3>Direct Links &amp; State Memory</h3><p>Every studio and PDF tool has its own shareable URL and remembers where you left off across refreshes and Back navigation.</p></article>
       </section>
     </main>
 
     <footer>
-      <span>webpresso</span>
-      <p>Free, private, and made for faster websites.</p>
+      <div class="footer-brand-row">
+        <span>webpresso</span>
+        <p>Free, private, and made for faster websites &amp; effortless PDFs.</p>
+      </div>
+      <nav class="footer-links" aria-label="Direct section links">
+        <a href="/image-studio">Image to WebP</a>
+        <a href="/pdf/merge">Merge PDF</a>
+        <a href="/pdf/split">Split PDF</a>
+        <a href="/pdf/organize">Organize Pages</a>
+        <a href="/pdf/rotate">Rotate PDF</a>
+        <a href="/pdf/compress">Compress PDF</a>
+        <a href="/pdf/repair">Repair PDF</a>
+        <a href="/pdf/grayscale">Grayscale PDF</a>
+        <a href="/pdf/img-to-pdf">Images to PDF</a>
+        <a href="/pdf/text-to-pdf">Text to PDF</a>
+        <a href="/pdf/pdf-to-img">PDF to Images</a>
+        <a href="/pdf/pdf-to-text">PDF to Text</a>
+        <a href="/pdf/page-numbers">Page Numbers</a>
+        <a href="/pdf/watermark">Watermark PDF</a>
+        <a href="/pdf/sign">Sign PDF</a>
+        <a href="/pdf/crop">Crop PDF</a>
+        <a href="/pdf/protect">Protect PDF</a>
+      </nav>
     </footer>
 
     <div class="toast" id="toast" role="status" aria-live="polite"></div>
