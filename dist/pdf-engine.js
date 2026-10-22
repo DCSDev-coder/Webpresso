@@ -134,9 +134,16 @@
 
       let contentStream = `q\n${fmt(p.drawWidth)} 0 0 ${fmt(p.drawHeight)} ${fmt(p.drawX)} ${fmt(p.drawY)} cm\n/Im0 Do\nQ\n`;
       if (p.searchableText) {
-        // Embed invisible searchable text layer so PDF-to-Text works on generated/modified PDFs too
-        const safeTxt = escapePdfString(p.searchableText);
-        contentStream += `BT\n/F1 1 Tf\n3 Tr\n36 36 Td\n(${safeTxt}) Tj\nET\n`;
+        // Embed multi-line searchable text layer so PDF-to-Text/Word/Excel works on generated/modified PDFs too
+        const lines = String(p.searchableText)
+          .split(/\r?\n/)
+          .map((l) => l.trim())
+          .filter(Boolean);
+        lines.forEach((line, lIdx) => {
+          const safeTxt = escapePdfString(line);
+          const yCoord = Math.max(36, Math.round(p.pageHeightPt - 72 - lIdx * 18));
+          contentStream += `BT\n/F1 11 Tf\n3 Tr\n48 ${yCoord} Td\n(${safeTxt}) Tj\nET\n`;
+        });
       }
       const contentBytes = encoder.encode(contentStream);
 
@@ -182,6 +189,80 @@
     const rawText = decoder.decode(uint8);
     if (!allowRepair && !rawText.includes('%PDF-')) {
       throw new Error('Invalid PDF file: missing %PDF header.');
+    }
+
+    // Use Mozilla PDF.js when loaded for 100% real-world PDF fidelity (fonts, vectors, compressed object streams, CJK/Unicode)
+    if (!allowRepair && typeof window !== 'undefined' && window.pdfjsLib) {
+      try {
+        if (!window.pdfjsLib.GlobalWorkerOptions.workerSrc) {
+          window.pdfjsLib.GlobalWorkerOptions.workerSrc =
+            'https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.worker.min.js';
+        }
+        const loadingTask = window.pdfjsLib.getDocument({ data: uint8.slice(0) });
+        const pdfDoc = await loadingTask.promise;
+        const pages = [];
+
+        for (let pNum = 1; pNum <= pdfDoc.numPages; pNum++) {
+          const page = await pdfDoc.getPage(pNum);
+          const viewport = page.getViewport({ scale: 1 });
+          const textContent = await page.getTextContent();
+
+          // Group text items by vertical Y line (within 4pt tolerance) and sort left-to-right by X
+          const lineBuckets = new Map();
+          for (const item of textContent.items || []) {
+            if (!item.str || !item.str.trim()) continue;
+            const tx = item.transform ? item.transform[4] : 48;
+            const ty = item.transform ? item.transform[5] : viewport.height - 60;
+            const fontSize = item.transform ? Math.max(8, Math.round(Math.hypot(item.transform[0], item.transform[1]))) : 12;
+            const bucketKey = Math.round(ty / 4) * 4;
+            if (!lineBuckets.has(bucketKey)) {
+              lineBuckets.set(bucketKey, []);
+            }
+            lineBuckets.get(bucketKey).push({ str: item.str, x: tx, y: ty, width: item.width || 0, fontSize });
+          }
+
+          const sortedYKeys = [...lineBuckets.keys()].sort((a, b) => b - a);
+          const textItems = sortedYKeys.map((yKey) => {
+            const rowItems = lineBuckets.get(yKey).sort((a, b) => a.x - b.x);
+            let combined = '';
+            let prevRight = null;
+            for (const part of rowItems) {
+              if (prevRight !== null) {
+                const gap = part.x - prevRight;
+                combined += gap > 18 ? '   |   ' : gap > 2 ? ' ' : '';
+              }
+              combined += part.str;
+              prevRight = part.x + (part.width || part.str.length * part.fontSize * 0.5);
+            }
+            return {
+              text: combined.trim(),
+              x: rowItems[0].x,
+              y: rowItems[0].y,
+              fontSize: rowItems[0].fontSize,
+              invisible: false
+            };
+          });
+
+          pages.push({
+            pageNumber: pNum,
+            width: viewport.width || 595.28,
+            height: viewport.height || 841.89,
+            rotation: 0,
+            images: [],
+            textItems,
+            rects: [],
+            _pdfjsPage: page
+          });
+        }
+
+        return {
+          pageCount: pages.length,
+          objectCount: pages.length * 4,
+          pages
+        };
+      } catch {
+        // Fallback to native zero-dependency PDF parser below
+      }
     }
 
     const objects = new Map();
@@ -461,8 +542,22 @@
 
     let drewContent = false;
 
-    // 1. Draw embedded images
-    if (!effects.isBlankPage && pageInfo.images) {
+    // 0. If parsed via Mozilla PDF.js, render the exact vector/font/image PDF page
+    if (!effects.isBlankPage && pageInfo._pdfjsPage) {
+      try {
+        const vp = pageInfo._pdfjsPage.getViewport({ scale });
+        await pageInfo._pdfjsPage.render({
+          canvasContext: ctx,
+          viewport: vp
+        }).promise;
+        drewContent = true;
+      } catch {
+        // Fallback to stream rendering below
+      }
+    }
+
+    // 1. Draw embedded images (fallback when PDF.js did not already render the page)
+    if (!drewContent && !effects.isBlankPage && pageInfo.images) {
       for (const imgBlob of pageInfo.images) {
         try {
           const { image, url } = await decodeImageBlob(imgBlob);
@@ -486,8 +581,8 @@
       }
     }
 
-    // 2. Draw vector rectangles
-    if (!effects.isBlankPage && pageInfo.rects && pageInfo.rects.length > 0) {
+    // 2. Draw vector rectangles (fallback when PDF.js did not already render the page)
+    if (!drewContent && !effects.isBlankPage && pageInfo.rects && pageInfo.rects.length > 0) {
       for (const r of pageInfo.rects) {
         ctx.fillStyle = r.color || '#111512';
         const rx = r.x * scale;
@@ -497,9 +592,9 @@
       }
     }
 
-    // 3. Draw visible parsed text streams
+    // 3. Draw visible parsed text streams (fallback when PDF.js did not already render the page)
     const visibleText = (pageInfo.textItems || []).filter((t) => !t.invisible);
-    if (!effects.isBlankPage && visibleText.length > 0) {
+    if (!drewContent && !effects.isBlankPage && visibleText.length > 0) {
       ctx.fillStyle = '#141815';
       ctx.textBaseline = 'alphabetic';
       for (const item of visibleText) {
@@ -1257,7 +1352,7 @@
           jpegBytes,
           imgWidthPx: canvas.width,
           imgHeightPx: canvas.height,
-          searchableText: file.name
+          searchableText: options.pageTexts?.[i] || file.name
         });
       } finally {
         URL.revokeObjectURL(url);

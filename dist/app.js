@@ -2012,7 +2012,14 @@
             new File([s2], 'p2.jpg', { type: 'image/jpeg' }),
             new File([s3], 'p3.jpg', { type: 'image/jpeg' })
           ],
-          { quality: 92 }
+          {
+            quality: 92,
+            pageTexts: [
+              'Webpresso Annual Report — Executive Overview\nDepartment | Q3 Revenue | Q4 Forecast | Growth %\nCloud Platform | $142,500 | $189,000 | +32.6%\nMedia & PDF Suite | $98,400 | $134,200 | +36.4%\nVideo Compression Engine | $64,100 | $92,800 | +44.8%',
+              'Performance & Compression Benchmarks\nMetric | Legacy Cloud Upload | Webpresso Local Engine | Improvement\nAverage Processing Latency | 4,200 ms | 180 ms | 23x Faster\nServer Bandwidth Cost | $0.08 / file | $0.00 / file | 100% Saved\nData Privacy Rating | External Cloud | 100% On-Device | Zero Upload',
+              'Appendix & Security Disclosures\nAll documents, spreadsheets, presentations, and videos are processed locally inside the user browser.\nVerified Output Formats: PDF, DOCX/DOC, PPT, XLS/CSV, HTML5, SVG, WebP, PNG, JPG, MP4, WebM, GIF, WAV.'
+            ]
+          }
         );
         const samplePdfFile = new File([built[0].blob], 'webpresso-sample-3pages.pdf', {
           type: 'application/pdf'
