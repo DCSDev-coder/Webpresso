@@ -1784,6 +1784,434 @@
     ];
   };
 
+  const escapeHtml = (str) =>
+    String(str || '')
+      .replace(/&/g, '&amp;')
+      .replace(/</g, '&lt;')
+      .replace(/>/g, '&gt;')
+      .replace(/"/g, '&quot;');
+
+  const canvasToDataUrl = (canvas, mime = 'image/jpeg', quality = 0.84) =>
+    canvas.toDataURL(mime, quality);
+
+  // 17. PDF TO WORD (.doc / .rtf Editable Document)
+  const pdfToWord = async (file, options = {}) => {
+    const mode = options.mode || 'hybrid'; // 'hybrid' | 'text-only' | 'rtf'
+    const uint8 = await blobToUint8Array(file);
+    const parsed = await parsePdfStructure(uint8, true);
+    const pages = await resolveEditedPages(file, options.workbenchPages);
+    const baseName = file.name.replace(/\.pdf$/i, '') || 'document';
+    const maybeYield = createYieldController();
+
+    const firstCanvas = await renderParsedPageToCanvas(pages[0], 0.45, file.name);
+    const thumbBlob = await new Promise((resolve) => firstCanvas.toBlob(resolve, 'image/webp', 0.8));
+    const previewUrl = thumbBlob ? URL.createObjectURL(thumbBlob) : '';
+
+    if (mode === 'rtf') {
+      const rtfPages = pages.map((p, idx) => {
+        const lines = (p.textItems || []).map((t) => t.text).filter(Boolean);
+        const body = lines.length
+          ? lines.map((l) => l.replace(/[\\{}]/g, '') + '\\par').join('\n')
+          : `[Page ${idx + 1} Visual Layout - ${Math.round(p.width)}x${Math.round(p.height)} pt]\\par`;
+        return `{\\b\\fs28 Page ${idx + 1}\\par}\\pard\\sa200\\fs22 ${body}\\par\\page`;
+      });
+      const rtfContent = `{\\rtf1\\ansi\\deff0{\\fonttbl{\\f0 Calibri;}}\\f0\\fs22 {\\b\\fs36 ${baseName.replace(/[\\{}]/g, '')}\\par}\\par\n${rtfPages.join('\n')}\n}`;
+      const blob = new Blob([rtfContent], { type: 'application/rtf' });
+      return [
+        {
+          name: `${baseName}.rtf`,
+          originalSize: file.size,
+          blob,
+          pageCount: pages.length,
+          preview: previewUrl,
+          extractedText: rtfContent.slice(0, 1500),
+          badge: `${pages.length} pg${pages.length === 1 ? '' : 's'} → Word RTF`
+        }
+      ];
+    }
+
+    const sectionHtml = [];
+    const plainPreviewLines = [];
+
+    for (let i = 0; i < pages.length; i++) {
+      await maybeYield();
+      const p = pages[i];
+      const lines = (p.textItems || []).map((t) => t.text).filter(Boolean);
+      plainPreviewLines.push(`--- Page ${i + 1} ---`, ...(lines.length ? lines : ['[Visual Page Snapshot Embedded]']));
+
+      let imgTag = '';
+      if (mode === 'hybrid') {
+        const pageCanvas = await renderParsedPageToCanvas(p, 1.35, file.name);
+        const dataUrl = canvasToDataUrl(pageCanvas, 'image/jpeg', 0.82);
+        imgTag = `<div style="margin:12pt 0;text-align:center;"><img src="${dataUrl}" style="max-width:100%;height:auto;border:1px solid #d0d7de;" alt="Page ${i + 1}" /></div>`;
+      }
+
+      const paragraphs = lines.length
+        ? lines.map((l) => `<p style="margin:0 0 8pt 0;font-family:Calibri,Arial,sans-serif;font-size:11pt;line-height:1.5;color:#111512;">${escapeHtml(l)}</p>`).join('\n')
+        : `<p style="margin:0 0 8pt 0;font-family:Calibri,Arial,sans-serif;font-size:10.5pt;color:#555;"><em>Page ${i + 1} (${Math.round(p.width)}×${Math.round(p.height)} pt)</em></p>`;
+
+      sectionHtml.push(`
+        <div style="page-break-after:always;margin-bottom:24pt;">
+          <h2 style="font-family:Calibri,Arial,sans-serif;font-size:14pt;color:#1b4332;border-bottom:1px solid #d8e2dc;padding-bottom:4pt;">Page ${i + 1} of ${pages.length}</h2>
+          ${paragraphs}
+          ${imgTag}
+        </div>
+      `);
+    }
+
+    const wordDoc = `<html xmlns:o="urn:schemas-microsoft-com:office:office" xmlns:w="urn:schemas-microsoft-com:office:word" xmlns="http://www.w3.org/TR/REC-html40">
+<head>
+  <meta charset="utf-8" />
+  <title>${escapeHtml(baseName)}</title>
+  <!--[if gte mso 9]><xml><w:WordDocument><w:View>Print</w:View><w:Zoom>100</w:Zoom></w:WordDocument></xml><![endif]-->
+  <style>
+    @page { size: 8.5in 11in; margin: 0.8in; }
+    body { font-family: Calibri, Arial, sans-serif; color: #111512; }
+  </style>
+</head>
+<body>
+  <h1 style="font-family:Calibri,Arial,sans-serif;font-size:20pt;margin-bottom:16pt;">${escapeHtml(baseName)}</h1>
+  ${sectionHtml.join('\n')}
+</body>
+</html>`;
+
+    const blob = new Blob(['\ufeff', wordDoc], { type: 'application/msword;charset=utf-8' });
+    return [
+      {
+        name: `${baseName}.doc`,
+        originalSize: file.size,
+        blob,
+        pageCount: pages.length,
+        preview: previewUrl,
+        extractedText: plainPreviewLines.join('\n'),
+        badge: `${pages.length} pg${pages.length === 1 ? '' : 's'} → Word (.DOC)`
+      }
+    ];
+  };
+
+  // 18. PDF TO POWERPOINT (.ppt Slide Deck / Interactive HTML5 Presentation)
+  const pdfToPpt = async (file, options = {}) => {
+    const ratio = options.aspectRatio || '16:9'; // '16:9' | '4:3'
+    const exportType = options.exportType || 'ppt'; // 'ppt' | 'html-deck'
+    const pages = await resolveEditedPages(file, options.workbenchPages);
+    const baseName = file.name.replace(/\.pdf$/i, '') || 'presentation';
+    const maybeYield = createYieldController();
+
+    const slideW = 1280;
+    const slideH = ratio === '4:3' ? 960 : 720;
+    const slides = [];
+    let firstPreviewUrl = '';
+
+    for (let i = 0; i < pages.length; i++) {
+      await maybeYield();
+      const p = pages[i];
+      const pageCanvas = await renderParsedPageToCanvas(p, 1.5, file.name);
+
+      const slideCanvas = document.createElement('canvas');
+      slideCanvas.width = slideW;
+      slideCanvas.height = slideH;
+      const ctx = slideCanvas.getContext('2d', { alpha: false });
+      ctx.fillStyle = '#111512';
+      ctx.fillRect(0, 0, slideW, slideH);
+
+      const pad = 36;
+      const scale = Math.min((slideW - pad * 2) / pageCanvas.width, (slideH - pad * 2) / pageCanvas.height);
+      const drawW = Math.round(pageCanvas.width * scale);
+      const drawH = Math.round(pageCanvas.height * scale);
+      const drawX = Math.round((slideW - drawW) / 2);
+      const drawY = Math.round((slideH - drawH) / 2);
+
+      ctx.fillStyle = '#ffffff';
+      ctx.fillRect(drawX, drawY, drawW, drawH);
+      ctx.drawImage(pageCanvas, drawX, drawY, drawW, drawH);
+
+      if (i === 0) {
+        const thumbBlob = await new Promise((resolve) => slideCanvas.toBlob(resolve, 'image/webp', 0.82));
+        if (thumbBlob) firstPreviewUrl = URL.createObjectURL(thumbBlob);
+      }
+
+      const notes = (p.textItems || []).map((t) => t.text).filter(Boolean).join(' · ');
+      slides.push({
+        index: i + 1,
+        dataUrl: canvasToDataUrl(slideCanvas, 'image/jpeg', 0.85),
+        notes: notes || `Slide ${i + 1} of ${pages.length}`
+      });
+    }
+
+    const deckHtml = `<!doctype html>
+<html xmlns:o="urn:schemas-microsoft-com:office:office" xmlns:p="urn:schemas-microsoft-com:office:powerpoint" lang="en">
+<head>
+  <meta charset="utf-8" />
+  <title>${escapeHtml(baseName)} — Slide Deck (${ratio})</title>
+  <style>
+    body { margin: 0; background: #0d100e; color: #f5f7f3; font-family: system-ui, -apple-system, sans-serif; }
+    header { position: sticky; top: 0; z-index: 10; background: rgba(17,21,18,0.92); padding: 12px 24px; display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid #263028; }
+    .slide-wrap { max-width: 1080px; margin: 28px auto; padding: 0 20px; }
+    .slide-card { background: #171c18; border: 1px solid #28322a; border-radius: 14px; overflow: hidden; margin-bottom: 32px; box-shadow: 0 18px 40px rgba(0,0,0,0.45); page-break-after: always; }
+    .slide-card img { display: block; width: 100%; height: auto; }
+    .slide-footer { padding: 12px 18px; display: flex; justify-content: space-between; gap: 16px; font-size: 13px; color: #a3afa5; border-top: 1px solid #242d26; }
+    .badge { color: #c7ff4a; font-weight: 700; }
+  </style>
+</head>
+<body>
+  <header>
+    <strong>${escapeHtml(baseName)} · ${slides.length} Slide${slides.length === 1 ? '' : 's'} (${ratio})</strong>
+    <span>Generated locally by Webpresso</span>
+  </header>
+  <main class="slide-wrap">
+    ${slides
+      .map(
+        (s) => `
+      <section class="slide-card" id="slide-${s.index}">
+        <img src="${s.dataUrl}" alt="Slide ${s.index}" />
+        <div class="slide-footer">
+          <span class="badge">SLIDE ${s.index} / ${slides.length}</span>
+          <span>${escapeHtml(s.notes.slice(0, 180))}</span>
+        </div>
+      </section>`
+      )
+      .join('\n')}
+  </main>
+</body>
+</html>`;
+
+    const isPpt = exportType !== 'html-deck';
+    const ext = isPpt ? 'ppt' : 'html';
+    const mime = isPpt ? 'application/vnd.ms-powerpoint;charset=utf-8' : 'text/html;charset=utf-8';
+    const blob = new Blob(['\ufeff', deckHtml], { type: mime });
+
+    return [
+      {
+        name: `${baseName}-slides.${ext}`,
+        originalSize: file.size,
+        blob,
+        pageCount: slides.length,
+        preview: firstPreviewUrl,
+        badge: `${slides.length} Slide${slides.length === 1 ? '' : 's'} (${ratio}) → .${ext.toUpperCase()}`
+      }
+    ];
+  };
+
+  // 19. PDF TO EXCEL / CSV (.xls Workbook / .csv Table)
+  const pdfToExcel = async (file, options = {}) => {
+    const format = options.format || 'xls'; // 'xls' | 'csv'
+    const uint8 = await blobToUint8Array(file);
+    const parsed = await parsePdfStructure(uint8, true);
+    const baseName = file.name.replace(/\.pdf$/i, '') || 'spreadsheet';
+
+    const firstCanvas = await renderParsedPageToCanvas(parsed.pages[0], 0.45, file.name);
+    const thumbBlob = await new Promise((resolve) => firstCanvas.toBlob(resolve, 'image/webp', 0.8));
+    const previewUrl = thumbBlob ? URL.createObjectURL(thumbBlob) : '';
+
+    const rows = [];
+    parsed.pages.forEach((p, pageIdx) => {
+      const items = (p.textItems || []).filter((t) => t.text && t.text.trim());
+      if (items.length === 0) {
+        rows.push({
+          page: pageIdx + 1,
+          rowNum: 1,
+          cols: [`Page ${pageIdx + 1}`, `${Math.round(p.width)}x${Math.round(p.height)} pt`, `${p.images?.length || 0} embedded objects`]
+        });
+      } else {
+        items.forEach((item, rIdx) => {
+          // Split multi-column spacing or delimiter into spreadsheet columns
+          const cols = item.text
+            .split(/\s{2,}|\t|\s*\|\s*/)
+            .map((c) => c.trim())
+            .filter(Boolean);
+          rows.push({
+            page: pageIdx + 1,
+            rowNum: rIdx + 1,
+            cols: cols.length ? cols : [item.text.trim()]
+          });
+        });
+      }
+    });
+
+    const csvLines = [
+      'Page,Row,Column_1,Column_2,Column_3,Column_4',
+      ...rows.map((r) => {
+        const padded = [r.page, r.rowNum, ...(r.cols || [])];
+        return padded.map((cell) => `"${String(cell ?? '').replace(/"/g, '""')}"`).join(',');
+      })
+    ];
+    const csvPreview = csvLines.join('\n');
+
+    if (format === 'csv') {
+      const blob = new Blob(['\ufeff', csvPreview], { type: 'text/csv;charset=utf-8' });
+      return [
+        {
+          name: `${baseName}.csv`,
+          originalSize: file.size,
+          blob,
+          pageCount: parsed.pageCount,
+          preview: previewUrl,
+          extractedText: csvPreview,
+          badge: `${rows.length} rows → .CSV`
+        }
+      ];
+    }
+
+    const xmlRows = rows
+      .map(
+        (r) =>
+          `<Row><Cell><Data ss:Type="Number">${r.page}</Data></Cell><Cell><Data ss:Type="Number">${r.rowNum}</Data></Cell>${r.cols
+            .map((c) => {
+              const num = Number(c.replace(/[,$%]/g, ''));
+              const isNum = c !== '' && !Number.isNaN(num) && /^[$%]?[-+]?\d[\d,.]*%?$/.test(c);
+              return `<Cell><Data ss:Type="${isNum ? 'Number' : 'String'}">${escapeHtml(isNum ? String(num) : c)}</Data></Cell>`;
+            })
+            .join('')}</Row>`
+      )
+      .join('\n');
+
+    const excelXml = `<?xml version="1.0" encoding="UTF-8"?>
+<?mso-application progid="Excel.Sheet"?>
+<Workbook xmlns="urn:schemas-microsoft-com:office:spreadsheet"
+ xmlns:o="urn:schemas-microsoft-com:office:office"
+ xmlns:x="urn:schemas-microsoft-com:office:excel"
+ xmlns:ss="urn:schemas-microsoft-com:office:spreadsheet">
+ <Worksheet ss:Name="Extracted PDF Data">
+  <Table>
+   <Row>
+    <Cell><Data ss:Type="String">Page</Data></Cell>
+    <Cell><Data ss:Type="String">Row</Data></Cell>
+    <Cell><Data ss:Type="String">Column A</Data></Cell>
+    <Cell><Data ss:Type="String">Column B</Data></Cell>
+    <Cell><Data ss:Type="String">Column C</Data></Cell>
+    <Cell><Data ss:Type="String">Column D</Data></Cell>
+   </Row>
+   ${xmlRows}
+  </Table>
+ </Worksheet>
+</Workbook>`;
+
+    const blob = new Blob([excelXml], { type: 'application/vnd.ms-excel;charset=utf-8' });
+    return [
+      {
+        name: `${baseName}.xls`,
+        originalSize: file.size,
+        blob,
+        pageCount: parsed.pageCount,
+        preview: previewUrl,
+        extractedText: csvPreview,
+        badge: `${rows.length} rows → Excel (.XLS)`
+      }
+    ];
+  };
+
+  // 20. PDF TO HTML5 WEBPAGE / SVG VECTOR PAGES
+  const pdfToHtml = async (file, options = {}) => {
+    const format = options.format || 'html'; // 'html' | 'svg'
+    const pages = await resolveEditedPages(file, options.workbenchPages);
+    const baseName = file.name.replace(/\.pdf$/i, '') || 'document';
+    const maybeYield = createYieldController();
+
+    if (format === 'svg') {
+      const outputs = [];
+      for (let i = 0; i < pages.length; i++) {
+        await maybeYield();
+        const p = pages[i];
+        const canvas = await renderParsedPageToCanvas(p, 1.6, file.name);
+        const dataUrl = canvasToDataUrl(canvas, 'image/png');
+        const svgTextNodes = (p.textItems || [])
+          .filter((t) => t.text)
+          .map(
+            (t) =>
+              `<text x="${Math.round(t.x || 48)}" y="${Math.round(p.height - (t.y || p.height - 60))}" font-family="Inter, Arial, sans-serif" font-size="${Math.round(t.fontSize || 12)}" fill="transparent">${escapeHtml(t.text)}</text>`
+          )
+          .join('\n  ');
+        const svgContent = `<?xml version="1.0" encoding="UTF-8"?>
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 ${canvas.width} ${canvas.height}" width="${canvas.width}" height="${canvas.height}">
+  <title>${escapeHtml(baseName)} - Page ${i + 1}</title>
+  <image href="${dataUrl}" width="${canvas.width}" height="${canvas.height}" />
+  ${svgTextNodes}
+</svg>`;
+        const blob = new Blob([svgContent], { type: 'image/svg+xml;charset=utf-8' });
+        outputs.push({
+          name: `${baseName}-page-${i + 1}.svg`,
+          originalSize: Math.round(file.size / pages.length),
+          blob,
+          pageCount: 1,
+          preview: URL.createObjectURL(blob),
+          badge: `${canvas.width}×${canvas.height} · SVG Vector`
+        });
+      }
+      return outputs;
+    }
+
+    const pageBlocks = [];
+    let firstPreviewUrl = '';
+
+    for (let i = 0; i < pages.length; i++) {
+      await maybeYield();
+      const p = pages[i];
+      const canvas = await renderParsedPageToCanvas(p, 1.4, file.name);
+      if (i === 0) {
+        const thumbBlob = await new Promise((resolve) => canvas.toBlob(resolve, 'image/webp', 0.8));
+        if (thumbBlob) firstPreviewUrl = URL.createObjectURL(thumbBlob);
+      }
+      const dataUrl = canvasToDataUrl(canvas, 'image/webp', 0.84);
+      const lines = (p.textItems || []).map((t) => t.text).filter(Boolean);
+      pageBlocks.push(`
+        <article class="pdf-page" id="page-${i + 1}">
+          <div class="page-head">
+            <span>Page ${i + 1} of ${pages.length}</span>
+            <span>${Math.round(p.width)} × ${Math.round(p.height)} pt</span>
+          </div>
+          <img src="${dataUrl}" alt="Page ${i + 1}" loading="lazy" />
+          ${
+            lines.length
+              ? `<details class="page-text"><summary>Selectable Page Text (${lines.length} lines)</summary><pre>${escapeHtml(lines.join('\n'))}</pre></details>`
+              : ''
+          }
+        </article>
+      `);
+    }
+
+    const htmlDoc = `<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>${escapeHtml(baseName)} — HTML5 Document</title>
+  <style>
+    :root { color-scheme: dark; }
+    body { margin: 0; background: #111512; color: #f5f7f3; font-family: Inter, system-ui, sans-serif; }
+    header { position: sticky; top: 0; background: rgba(17,21,18,0.92); backdrop-filter: blur(12px); padding: 14px 24px; border-bottom: 1px solid #263028; display: flex; justify-content: space-between; align-items: center; }
+    .container { max-width: 920px; margin: 28px auto; padding: 0 18px; }
+    .pdf-page { background: #181e1a; border: 1px solid #2b352d; border-radius: 14px; padding: 16px; margin-bottom: 28px; }
+    .page-head { display: flex; justify-content: space-between; font-size: 12px; color: #9aa79d; margin-bottom: 12px; text-transform: uppercase; letter-spacing: 0.06em; }
+    .pdf-page img { width: 100%; height: auto; border-radius: 8px; display: block; background: #fff; }
+    .page-text { margin-top: 12px; background: #111512; border-radius: 8px; padding: 10px 14px; }
+    .page-text summary { cursor: pointer; color: #c7ff4a; font-size: 13px; font-weight: 600; }
+    .page-text pre { white-space: pre-wrap; font-size: 13px; color: #dce3dd; margin: 10px 0 0; }
+  </style>
+</head>
+<body>
+  <header>
+    <strong>${escapeHtml(baseName)}</strong>
+    <span>${pages.length} Page${pages.length === 1 ? '' : 's'} · Webpresso HTML5 Export</span>
+  </header>
+  <main class="container">
+    ${pageBlocks.join('\n')}
+  </main>
+</body>
+</html>`;
+
+    const blob = new Blob([htmlDoc], { type: 'text/html;charset=utf-8' });
+    return [
+      {
+        name: `${baseName}.html`,
+        originalSize: file.size,
+        blob,
+        pageCount: pages.length,
+        preview: firstPreviewUrl,
+        badge: `${pages.length} pg${pages.length === 1 ? '' : 's'} → Standalone .HTML`
+      }
+    ];
+  };
+
   window.WebpressoPdfEngine = {
     inspectPdf,
     mergePdfs,
@@ -1797,6 +2225,10 @@
     textToPdf,
     pdfToImages,
     pdfToText,
+    pdfToWord,
+    pdfToPpt,
+    pdfToExcel,
+    pdfToHtml,
     addPageNumbers,
     watermarkPdf,
     signPdf,

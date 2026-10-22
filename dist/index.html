@@ -8,11 +8,12 @@
       name="description"
       content="Convert PNG, JPG, SVG and other browser-supported images to lightweight WebP files, plus 16 client-side PDF tools (Merge, Split, Organize, Rotate, Compress, Repair, Sign, Watermark, Page Numbers, Protect, and Convert) privately in your browser."
     />
-    <title>Webpresso — Image to WebP &amp; Complete 16-in-1 Private PDF Suite</title>
+    <title>Webpresso — WebP Image Studio, 20-in-1 PDF Suite &amp; Video Studio</title>
     <base href="/" />
     <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='8' fill='%23111512'/%3E%3Cpath d='M8 10h4l2 10 2-7 2 7 2-10h4' fill='none' stroke='%23c7ff4a' stroke-width='3' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E" />
     <link rel="stylesheet" href="/styles.css" />
     <script src="/pdf-engine.js" defer></script>
+    <script src="/video-engine.js" defer></script>
     <script src="/app.js" defer></script>
   </head>
   <body>
@@ -52,7 +53,22 @@
             >
               <svg viewBox="0 0 24 24" width="16" height="16" aria-hidden="true"><path d="M14 3H7a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2V8z" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linejoin="round"/><path d="M14 3v5h5M9 13h6M9 17h4" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/></svg>
               <span>PDF Studio</span>
-              <span class="tab-pill tab-pill-pdf">16 Tools</span>
+              <span class="tab-pill tab-pill-pdf">20 Tools</span>
+            </a>
+          </li>
+          <li class="studio-tab-item" data-studio-item="video">
+            <a
+              href="/video/compress"
+              class="studio-tab-btn"
+              id="tab-btn-video"
+              data-studio-target="video"
+              data-route-link="/video-studio"
+              aria-expanded="false"
+              aria-controls="video-studio-panel"
+            >
+              <svg viewBox="0 0 24 24" width="16" height="16" aria-hidden="true"><rect x="2" y="5" width="15" height="14" rx="2.5" fill="none" stroke="currentColor" stroke-width="1.8"/><path d="m17 10 5-3v10l-5-3z" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linejoin="round"/></svg>
+              <span>Video Studio</span>
+              <span class="tab-pill tab-pill-video">MP4 · GIF</span>
             </a>
           </li>
         </ul>
@@ -183,15 +199,15 @@
         <div class="studio-inner">
           <section class="intro pdf-intro" aria-labelledby="pdf-page-title">
             <div>
-              <p class="eyebrow pdf-eyebrow">16-in-1 Local PDF Operating System</p>
+              <p class="eyebrow pdf-eyebrow">20-in-1 Local PDF Operating System</p>
               <h2 class="hero-h1" id="pdf-page-title" tabindex="-1">Every PDF power tool.<br /><span>Zero server uploads.</span></h2>
             </div>
             <div>
-              <p class="intro-copy">All the tools of iLovePDF—upgraded with dedicated deep links per tool, a live Visual Page Workbench, 1-click multi-tool pipeline chaining, and 100% local execution.</p>
+              <p class="intro-copy">Convert to PDF or convert PDF into anything (Word, PowerPoint, Excel, HTML, SVG, Images, Markdown &amp; JSON)—with dedicated clean URLs, a live Visual Page Workbench, and 100% local execution.</p>
               <div class="advantage-pills" aria-label="Webpresso advantages">
                 <span>⚡ 0s Upload Wait</span>
                 <span>🔒 100% On-Device</span>
-                <span>🔗 Multi-Tool Chaining</span>
+                <span>🔄 PDF to Word/PPT/Excel/Img</span>
                 <span>♾️ No Paywall Limits</span>
               </div>
             </div>
@@ -200,17 +216,17 @@
           <!-- Category Filter Bar + Instant Tool Search -->
           <section class="pdf-Command-bar" aria-label="Filter and search PDF tools">
             <div class="pdf-category-pills" id="pdf-category-bar" role="toolbar" aria-label="PDF tool categories">
-              <a href="/pdf/category/all" class="cat-pill active" data-pdf-cat="all">All Tools (16)</a>
+              <a href="/pdf/category/all" class="cat-pill active" data-pdf-cat="all">All Tools (20)</a>
+              <a href="/pdf/category/from-pdf" class="cat-pill" data-pdf-cat="from-pdf">Convert from PDF (6)</a>
+              <a href="/pdf/category/to-pdf" class="cat-pill" data-pdf-cat="to-pdf">Convert to PDF</a>
               <a href="/pdf/category/organize" class="cat-pill" data-pdf-cat="organize">Organize PDF</a>
               <a href="/pdf/category/optimize" class="cat-pill" data-pdf-cat="optimize">Optimize PDF</a>
-              <a href="/pdf/category/to-pdf" class="cat-pill" data-pdf-cat="to-pdf">Convert to PDF</a>
-              <a href="/pdf/category/from-pdf" class="cat-pill" data-pdf-cat="from-pdf">Convert from PDF</a>
               <a href="/pdf/category/edit" class="cat-pill" data-pdf-cat="edit">Edit &amp; Sign</a>
               <a href="/pdf/category/security" class="cat-pill" data-pdf-cat="security">Security &amp; Meta</a>
             </div>
             <div class="pdf-search-box">
               <svg viewBox="0 0 24 24" width="16" height="16" aria-hidden="true"><circle cx="11" cy="11" r="7" fill="none" stroke="currentColor" stroke-width="2"/><path d="m20 20-3.5-3.5" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg>
-              <input id="pdf-tool-search" type="search" placeholder="Search 16 PDF tools (merge, sign, watermark…)" aria-label="Search PDF tools" />
+              <input id="pdf-tool-search" type="search" placeholder="Search 20 PDF tools (word, excel, ppt, merge, sign…)" aria-label="Search PDF tools" />
             </div>
           </section>
 
@@ -310,7 +326,47 @@
                 </span>
               </a>
 
-              <!-- CONVERT FROM PDF -->
+              <!-- CONVERT FROM PDF (6 TOOLS: WORD, PPT, EXCEL, HTML/SVG, IMAGES, TEXT/JSON) -->
+              <a href="/pdf/pdf-to-word" class="pdf-tool-card" role="tab" data-pdf-tool="pdf-to-word" data-tool-cat="from-pdf" aria-selected="false">
+                <span class="pdf-tool-icon" data-accent="sky" aria-hidden="true">
+                  <svg viewBox="0 0 24 24" width="20" height="20"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linejoin="round"/><path d="M14 2v6h6M8 13l1.5 5 2-4 2 4 1.5-5" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg>
+                </span>
+                <span class="pdf-tool-meta">
+                  <strong>PDF to Word</strong>
+                  <small>Convert PDF to editable .DOC &amp; .RTF</small>
+                </span>
+              </a>
+
+              <a href="/pdf/pdf-to-ppt" class="pdf-tool-card" role="tab" data-pdf-tool="pdf-to-ppt" data-tool-cat="from-pdf" aria-selected="false">
+                <span class="pdf-tool-icon" data-accent="coral" aria-hidden="true">
+                  <svg viewBox="0 0 24 24" width="20" height="20"><rect x="3" y="4" width="18" height="12" rx="2" fill="none" stroke="currentColor" stroke-width="1.8"/><path d="M12 16v4m-4 0h8" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/></svg>
+                </span>
+                <span class="pdf-tool-meta">
+                  <strong>PDF to PowerPoint</strong>
+                  <small>Export 16:9 or 4:3 .PPT slide deck</small>
+                </span>
+              </a>
+
+              <a href="/pdf/pdf-to-excel" class="pdf-tool-card" role="tab" data-pdf-tool="pdf-to-excel" data-tool-cat="from-pdf" aria-selected="false">
+                <span class="pdf-tool-icon" data-accent="lime" aria-hidden="true">
+                  <svg viewBox="0 0 24 24" width="20" height="20"><rect x="3" y="3" width="18" height="18" rx="2" fill="none" stroke="currentColor" stroke-width="1.8"/><path d="M3 9h18M3 15h18M9 3v18M15 3v18" stroke="currentColor" stroke-width="1.6"/></svg>
+                </span>
+                <span class="pdf-tool-meta">
+                  <strong>PDF to Excel &amp; CSV</strong>
+                  <small>Extract tables &amp; rows to .XLS / .CSV</small>
+                </span>
+              </a>
+
+              <a href="/pdf/pdf-to-html" class="pdf-tool-card" role="tab" data-pdf-tool="pdf-to-html" data-tool-cat="from-pdf" aria-selected="false">
+                <span class="pdf-tool-icon" data-accent="amber" aria-hidden="true">
+                  <svg viewBox="0 0 24 24" width="20" height="20"><path d="m16 18 6-6-6-6M8 6l-6 6 6 6" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg>
+                </span>
+                <span class="pdf-tool-meta">
+                  <strong>PDF to HTML &amp; SVG</strong>
+                  <small>Convert PDF to webpage or SVG vectors</small>
+                </span>
+              </a>
+
               <a href="/pdf/pdf-to-img" class="pdf-tool-card" role="tab" data-pdf-tool="pdf-to-img" data-tool-cat="from-pdf" aria-selected="false">
                 <span class="pdf-tool-icon" data-accent="violet" aria-hidden="true">
                   <svg viewBox="0 0 24 24" width="20" height="20"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linejoin="round"/><path d="M14 2v6h6M12 18v-6M9 15l3 3 3-3" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg>
@@ -645,6 +701,56 @@
                   </select>
                 </div>
 
+                <!-- 11b. PDF to Word (.DOC / .RTF) -->
+                <div class="pdf-tool-config" id="config-pdf-to-word" data-tool-config="pdf-to-word" hidden>
+                  <label class="field-label" for="pdf-word-mode">Word conversion mode</label>
+                  <select id="pdf-word-mode" class="select-input">
+                    <option value="hybrid" selected>Editable Text + High-Res Page Layouts (.doc)</option>
+                    <option value="text-only">Pure Editable Paragraphs Only (.doc)</option>
+                    <option value="rtf">Universal Rich Text Document (.rtf)</option>
+                  </select>
+                  <p class="config-hint">Opens directly in Microsoft Word, Google Docs, Apple Pages, or LibreOffice Writer.</p>
+                </div>
+
+                <!-- 11c. PDF to PowerPoint (.PPT / Slides) -->
+                <div class="pdf-tool-config" id="config-pdf-to-ppt" data-tool-config="pdf-to-ppt" hidden>
+                  <div class="form-grid-2">
+                    <div>
+                      <label class="field-label" for="pdf-ppt-ratio">Slide aspect ratio</label>
+                      <select id="pdf-ppt-ratio" class="select-input">
+                        <option value="16:9" selected>Widescreen 16:9 (1280×720)</option>
+                        <option value="4:3">Standard 4:3 (1280×960)</option>
+                      </select>
+                    </div>
+                    <div>
+                      <label class="field-label" for="pdf-ppt-type">Presentation format</label>
+                      <select id="pdf-ppt-type" class="select-input">
+                        <option value="ppt" selected>PowerPoint Deck (.ppt)</option>
+                        <option value="html-deck">Interactive Web Slide Deck (.html)</option>
+                      </select>
+                    </div>
+                  </div>
+                </div>
+
+                <!-- 11d. PDF to Excel / CSV -->
+                <div class="pdf-tool-config" id="config-pdf-to-excel" data-tool-config="pdf-to-excel" hidden>
+                  <label class="field-label" for="pdf-excel-format">Spreadsheet output format</label>
+                  <select id="pdf-excel-format" class="select-input">
+                    <option value="xls" selected>Microsoft Excel Workbook (.xls)</option>
+                    <option value="csv">Comma-Separated Values (.csv)</option>
+                  </select>
+                  <p class="config-hint">Automatically detects numeric values, columns, and page rows for instant spreadsheet analysis.</p>
+                </div>
+
+                <!-- 11e. PDF to HTML / SVG -->
+                <div class="pdf-tool-config" id="config-pdf-to-html" data-tool-config="pdf-to-html" hidden>
+                  <label class="field-label" for="pdf-html-format">Web / Vector export format</label>
+                  <select id="pdf-html-format" class="select-input">
+                    <option value="html" selected>Standalone Responsive HTML5 Page (.html)</option>
+                    <option value="svg">Scalable Vector Graphic Pages (.svg)</option>
+                  </select>
+                </div>
+
                 <!-- 12. Add Page Numbers -->
                 <div class="pdf-tool-config" id="config-page-numbers" data-tool-config="page-numbers" hidden>
                   <div class="form-grid-2">
@@ -856,17 +962,387 @@
         </div>
       </div>
 
+      <!-- ==================== STUDIO 3: 6-IN-1 CLIENT-SIDE VIDEO STUDIO ==================== -->
+      <div id="video-studio-panel" class="studio-panel" data-studio-panel="video" hidden="until-found">
+        <div class="studio-inner">
+          <section class="intro video-intro" aria-labelledby="video-page-title">
+            <div>
+              <p class="eyebrow video-eyebrow">6-in-1 Local Video &amp; Audio Engine</p>
+              <h2 class="hero-h1" id="video-page-title" tabindex="-1">Compress video.<br /><span>Convert any format.</span></h2>
+            </div>
+            <div>
+              <p class="intro-copy">Shrink heavy video files, convert between MP4, WebM, Animated GIF, and lossless WAV audio, trim clips, or extract HD frames—100% locally in your browser with zero server upload wait.</p>
+              <div class="advantage-pills" aria-label="Video Studio advantages">
+                <span>🎬 MP4 · WebM · GIF · WAV</span>
+                <span>📉 Custom Bitrate &amp; Resolution</span>
+                <span>✂️ Trim &amp; Speed Control</span>
+                <span>🔒 100% Private On-Device</span>
+              </div>
+            </div>
+          </section>
+
+          <!-- 6-Tool Video Selector Grid -->
+          <section class="pdf-tools-ribbon" aria-label="Select a Video tool">
+            <div class="pdf-tool-grid" id="video-tool-grid" role="tablist" aria-label="Video toolkit">
+              <a href="/video/compress" class="pdf-tool-card active" role="tab" data-video-tool="compress" aria-selected="true">
+                <span class="pdf-tool-icon" data-accent="lime" aria-hidden="true">
+                  <svg viewBox="0 0 24 24" width="20" height="20"><path d="M4 14h6v6M20 10h-6V4M14 10l7-7M3 21l7-7" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg>
+                </span>
+                <span class="pdf-tool-meta">
+                  <strong>Compress Video</strong>
+                  <small>Shrink MP4/WebM size by up to 80%</small>
+                </span>
+              </a>
+
+              <a href="/video/convert" class="pdf-tool-card" role="tab" data-video-tool="convert" aria-selected="false">
+                <span class="pdf-tool-icon" data-accent="sky" aria-hidden="true">
+                  <svg viewBox="0 0 24 24" width="20" height="20"><path d="M17 2.1l4 4-4 4" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/><path d="M3 12.2v-2a4 4 0 0 1 4-4h14M7 21.9l-4-4 4-4" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/><path d="M21 11.8v2a4 4 0 0 1-4 4H3" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg>
+                </span>
+                <span class="pdf-tool-meta">
+                  <strong>Convert Video Format</strong>
+                  <small>MP4, WebM, Animated GIF, or WAV</small>
+                </span>
+              </a>
+
+              <a href="/video/trim" class="pdf-tool-card" role="tab" data-video-tool="trim" aria-selected="false">
+                <span class="pdf-tool-icon" data-accent="coral" aria-hidden="true">
+                  <svg viewBox="0 0 24 24" width="20" height="20"><circle cx="6" cy="6" r="3" fill="none" stroke="currentColor" stroke-width="1.8"/><circle cx="6" cy="18" r="3" fill="none" stroke="currentColor" stroke-width="1.8"/><path d="M20 4 8.12 15.88M14.47 14.48 20 20M8.12 8.12 12 12" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/></svg>
+                </span>
+                <span class="pdf-tool-meta">
+                  <strong>Trim &amp; Speed Video</strong>
+                  <small>Cut start/end times &amp; 0.5x–2x speed</small>
+                </span>
+              </a>
+
+              <a href="/video/to-gif" class="pdf-tool-card" role="tab" data-video-tool="to-gif" aria-selected="false">
+                <span class="pdf-tool-icon" data-accent="amber" aria-hidden="true">
+                  <svg viewBox="0 0 24 24" width="20" height="20"><rect x="2" y="4" width="20" height="16" rx="3" fill="none" stroke="currentColor" stroke-width="1.8"/><path d="M10 9.5 15 12l-5 2.5v-5z" fill="currentColor"/></svg>
+                </span>
+                <span class="pdf-tool-meta">
+                  <strong>Video to Animated GIF</strong>
+                  <small>Export looping GIF89a animation</small>
+                </span>
+              </a>
+
+              <a href="/video/to-audio" class="pdf-tool-card" role="tab" data-video-tool="to-audio" aria-selected="false">
+                <span class="pdf-tool-icon" data-accent="violet" aria-hidden="true">
+                  <svg viewBox="0 0 24 24" width="20" height="20"><path d="M9 18V5l12-2v13" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/><circle cx="6" cy="18" r="3" fill="none" stroke="currentColor" stroke-width="1.8"/><circle cx="18" cy="16" r="3" fill="none" stroke="currentColor" stroke-width="1.8"/></svg>
+                </span>
+                <span class="pdf-tool-meta">
+                  <strong>Video to Audio (WAV)</strong>
+                  <small>Extract 16-bit PCM audio track fast</small>
+                </span>
+              </a>
+
+              <a href="/video/frames" class="pdf-tool-card" role="tab" data-video-tool="frames" aria-selected="false">
+                <span class="pdf-tool-icon" data-accent="sky" aria-hidden="true">
+                  <svg viewBox="0 0 24 24" width="20" height="20"><rect x="3" y="3" width="18" height="18" rx="2.5" fill="none" stroke="currentColor" stroke-width="1.8"/><path d="M3 9h18M9 21V9" fill="none" stroke="currentColor" stroke-width="1.8"/></svg>
+                </span>
+                <span class="pdf-tool-meta">
+                  <strong>Video to Frame Images</strong>
+                  <small>Grab HD stills as WebP, PNG, or JPG</small>
+                </span>
+              </a>
+            </div>
+          </section>
+
+          <!-- Video Studio Workspace -->
+          <section class="workspace video-workspace" aria-label="Video Studio workspace">
+            <div class="controls-card">
+              <div class="step-head-row">
+                <div class="step-label"><span>01</span> <span id="video-step1-title">Add video to compress</span></div>
+                <button type="button" class="sample-btn" id="video-sample-btn" title="Synthesize a 720p HD sample video to test immediately">
+                  + Load sample HD video
+                </button>
+              </div>
+
+              <button class="drop-zone" id="video-drop-zone" type="button" aria-describedby="video-format-note">
+                <span class="upload-icon" aria-hidden="true">
+                  <svg viewBox="0 0 24 24" width="28" height="28"><rect x="2" y="5" width="15" height="14" rx="2.5" fill="none" stroke="currentColor" stroke-width="1.8"/><path d="m17 10 5-3v10l-5-3z" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linejoin="round"/></svg>
+                </span>
+                <strong id="video-drop-title">Drop a video file here</strong>
+                <span>or <u>choose from your device</u></span>
+                <span class="formats" id="video-format-note">MP4 · WEBM · MOV · M4V · OGV · 100% ON-DEVICE</span>
+              </button>
+              <input id="video-file-input" type="file" accept="video/*,.mp4,.webm,.mov,.m4v,.ogv,.mkv" hidden />
+
+              <!-- Queued Video Info -->
+              <div class="pdf-queue-wrap" id="video-queue-wrap" hidden>
+                <div class="queue-header">
+                  <span id="video-queue-meta">1 video loaded</span>
+                  <button type="button" class="text-link-btn" id="video-clear-queue">Remove video</button>
+                </div>
+                <div class="pdf-source-list" id="video-source-list" aria-live="polite"></div>
+              </div>
+
+              <div class="settings">
+                <div class="step-label"><span>02</span> <span id="video-step2-title">Compression settings</span></div>
+
+                <!-- V1. Compress Video Config -->
+                <div class="video-tool-config" id="vconfig-compress" data-video-config="compress">
+                  <div class="compress-presets" role="radiogroup" aria-label="Video compression preset">
+                    <label class="preset-option">
+                      <input type="radio" name="video-compress-level" value="extreme" />
+                      <span class="preset-body">
+                        <strong>Extreme Compression (~650 kbps)</strong>
+                        <small>Smallest file size for WhatsApp, Discord &amp; email (480p)</small>
+                      </span>
+                      <span class="preset-badge">Max save</span>
+                    </label>
+                    <label class="preset-option">
+                      <input type="radio" name="video-compress-level" value="recommended" checked />
+                      <span class="preset-body">
+                        <strong>Recommended Balance (~1.4 Mbps)</strong>
+                        <small>Crisp HD clarity with strong size reduction (720p)</small>
+                      </span>
+                      <span class="preset-badge preset-badge-lime">Best balance</span>
+                    </label>
+                    <label class="preset-option">
+                      <input type="radio" name="video-compress-level" value="high" />
+                      <span class="preset-body">
+                        <strong>High Quality (~2.8 Mbps)</strong>
+                        <small>Full HD preservation with stream optimization (1080p)</small>
+                      </span>
+                      <span class="preset-badge">1080p HD</span>
+                    </label>
+                  </div>
+
+                  <div class="form-grid-2 form-row-top">
+                    <div>
+                      <label class="field-label" for="video-compress-res">Max resolution</label>
+                      <select id="video-compress-res" class="select-input">
+                        <option value="auto" selected>Match Preset</option>
+                        <option value="0">Keep Original Resolution</option>
+                        <option value="1080">1080p Full HD</option>
+                        <option value="720">720p HD</option>
+                        <option value="480">480p Compact</option>
+                        <option value="360">360p Ultra-Light</option>
+                      </select>
+                    </div>
+                    <div>
+                      <label class="field-label" for="video-compress-format">Output container</label>
+                      <select id="video-compress-format" class="select-input">
+                        <option value="mp4" selected>MP4 (Universal Web/Mobile)</option>
+                        <option value="webm">WebM (High-Efficiency VP9)</option>
+                      </select>
+                    </div>
+                  </div>
+
+                  <label class="toggle-row compact-toggle" for="video-compress-mute">
+                    <span>
+                      <strong>Strip / Mute Audio Track</strong>
+                      <small>Removes audio stream to save additional file weight</small>
+                    </span>
+                    <span class="switch"><input id="video-compress-mute" type="checkbox" /><span aria-hidden="true"></span></span>
+                  </label>
+                </div>
+
+                <!-- V2. Convert Video Format Config -->
+                <div class="video-tool-config" id="vconfig-convert" data-video-config="convert" hidden>
+                  <div class="form-grid-2">
+                    <div>
+                      <label class="field-label" for="video-convert-format">Convert to format</label>
+                      <select id="video-convert-format" class="select-input">
+                        <option value="mp4" selected>MP4 Video (.mp4)</option>
+                        <option value="webm">WebM Video (.webm)</option>
+                        <option value="gif">Animated GIF (.gif)</option>
+                        <option value="wav">Lossless Audio (.wav)</option>
+                      </select>
+                    </div>
+                    <div>
+                      <label class="field-label" for="video-convert-aspect">Aspect ratio / framing</label>
+                      <select id="video-convert-aspect" class="select-input">
+                        <option value="original" selected>Keep Original Aspect</option>
+                        <option value="16:9">16:9 Landscape (YouTube/Web)</option>
+                        <option value="9:16">9:16 Vertical (Reels/TikTok/Shorts)</option>
+                        <option value="1:1">1:1 Square Social</option>
+                      </select>
+                    </div>
+                  </div>
+                  <div class="form-grid-2 form-row-top">
+                    <div>
+                      <label class="field-label" for="video-convert-res">Resolution cap</label>
+                      <select id="video-convert-res" class="select-input">
+                        <option value="0" selected>Original Resolution</option>
+                        <option value="1080">1080p Full HD</option>
+                        <option value="720">720p HD</option>
+                        <option value="480">480p SD</option>
+                      </select>
+                    </div>
+                    <div>
+                      <label class="field-label" for="video-convert-fps">Frame rate</label>
+                      <select id="video-convert-fps" class="select-input">
+                        <option value="30" selected>30 FPS (Standard)</option>
+                        <option value="60">60 FPS (Smooth)</option>
+                        <option value="24">24 FPS (Cinematic)</option>
+                        <option value="15">15 FPS (Lightweight)</option>
+                      </select>
+                    </div>
+                  </div>
+                </div>
+
+                <!-- V3. Trim & Speed Video Config -->
+                <div class="video-tool-config" id="vconfig-trim" data-video-config="trim" hidden>
+                  <div class="form-grid-2">
+                    <div>
+                      <label class="field-label" for="video-trim-start">Start time (seconds)</label>
+                      <input id="video-trim-start" class="select-input" type="number" min="0" step="0.5" value="0" />
+                    </div>
+                    <div>
+                      <label class="field-label" for="video-trim-end">End time (0 = end of video)</label>
+                      <input id="video-trim-end" class="select-input" type="number" min="0" step="0.5" value="0" />
+                    </div>
+                  </div>
+                  <div class="form-grid-2 form-row-top">
+                    <div>
+                      <label class="field-label" for="video-trim-speed">Playback speed</label>
+                      <select id="video-trim-speed" class="select-input">
+                        <option value="0.5">0.5x Slow Motion</option>
+                        <option value="1" selected>1.0x Normal Speed</option>
+                        <option value="1.5">1.5x Fast Forward</option>
+                        <option value="2">2.0x Double Speed</option>
+                      </select>
+                    </div>
+                    <div>
+                      <label class="field-label" for="video-trim-format">Output format</label>
+                      <select id="video-trim-format" class="select-input">
+                        <option value="mp4" selected>MP4 (.mp4)</option>
+                        <option value="webm">WebM (.webm)</option>
+                      </select>
+                    </div>
+                  </div>
+                </div>
+
+                <!-- V4. Video to Animated GIF Config -->
+                <div class="video-tool-config" id="vconfig-to-gif" data-video-config="to-gif" hidden>
+                  <div class="form-grid-2">
+                    <div>
+                      <label class="field-label" for="video-gif-width">GIF width (px)</label>
+                      <select id="video-gif-width" class="select-input">
+                        <option value="320">320 px (Compact Chat GIF)</option>
+                        <option value="420" selected>420 px (Balanced Sharp GIF)</option>
+                        <option value="540">540 px (Large HD GIF)</option>
+                      </select>
+                    </div>
+                    <div>
+                      <label class="field-label" for="video-gif-fps">Frame rate</label>
+                      <select id="video-gif-fps" class="select-input">
+                        <option value="8">8 FPS (Smaller file)</option>
+                        <option value="10" selected>10 FPS (Recommended)</option>
+                        <option value="14">14 FPS (Smoother motion)</option>
+                      </select>
+                    </div>
+                  </div>
+                  <div class="form-row-top">
+                    <label class="field-label" for="video-gif-duration">Max clip duration (seconds)</label>
+                    <input id="video-gif-duration" class="select-input" type="number" min="1" max="15" value="4" />
+                  </div>
+                </div>
+
+                <!-- V5. Video to Audio (WAV) Config -->
+                <div class="video-tool-config" id="vconfig-to-audio" data-video-config="to-audio" hidden>
+                  <div class="form-grid-2">
+                    <div>
+                      <label class="field-label" for="video-audio-rate">Sample rate</label>
+                      <select id="video-audio-rate" class="select-input">
+                        <option value="44100" selected>44.1 kHz (CD Studio Quality)</option>
+                        <option value="22050">22.05 kHz (Compact Voice/Podcast)</option>
+                      </select>
+                    </div>
+                    <div>
+                      <label class="field-label" for="video-audio-norm">Audio loudness</label>
+                      <select id="video-audio-norm" class="select-input">
+                        <option value="true" selected>Auto-Normalize Peak Volume</option>
+                        <option value="false">Keep Original Gain</option>
+                      </select>
+                    </div>
+                  </div>
+                </div>
+
+                <!-- V6. Video to Frame Images Config -->
+                <div class="video-tool-config" id="vconfig-frames" data-video-config="frames" hidden>
+                  <div class="form-grid-2">
+                    <div>
+                      <label class="field-label" for="video-frames-count">Number of frames to extract</label>
+                      <select id="video-frames-count" class="select-input">
+                        <option value="4">4 Frames</option>
+                        <option value="6" selected>6 Frames (Storyboard)</option>
+                        <option value="10">10 Frames</option>
+                        <option value="16">16 Frames</option>
+                      </select>
+                    </div>
+                    <div>
+                      <label class="field-label" for="video-frames-format">Image format</label>
+                      <select id="video-frames-format" class="select-input">
+                        <option value="webp" selected>WebP (Smallest &amp; sharp)</option>
+                        <option value="png">PNG (Lossless)</option>
+                        <option value="jpeg">JPG (Universal)</option>
+                      </select>
+                    </div>
+                  </div>
+                </div>
+
+                <button type="button" class="primary-process-btn" id="video-process-btn">
+                  <span id="video-process-btn-label">Compress Video</span>
+                  <svg viewBox="0 0 24 24" width="18" height="18" aria-hidden="true"><path d="M5 12h14m-5-5 5 5-5 5" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+                </button>
+              </div>
+            </div>
+
+            <!-- Right Column: Video Results & Playable Preview -->
+            <div class="results-card" id="video-results-card">
+              <div class="results-head">
+                <div>
+                  <p class="step-label"><span>03</span> Preview &amp; Download</p>
+                  <h2 id="video-results-heading" tabindex="-1">Your processed video</h2>
+                </div>
+                <div class="results-actions">
+                  <button class="secondary-action" id="video-clear-results" type="button" hidden>Clear</button>
+                  <button class="download-all" id="video-download-all" type="button" hidden>
+                    Download all
+                    <svg viewBox="0 0 24 24" width="18" height="18" aria-hidden="true"><path d="M12 4v11m0 0 4-4m-4 4-4-4M5 20h14" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+                  </button>
+                </div>
+              </div>
+
+              <div class="empty-state" id="video-empty-state">
+                <div class="empty-visual" aria-hidden="true">
+                  <span class="file-card file-back">RAW</span>
+                  <span class="file-card file-front" id="video-empty-front-badge">MP4</span>
+                  <svg viewBox="0 0 24 24" width="24" height="24"><path d="M5 12h13m-4-4 4 4-4 4" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+                </div>
+                <h2 id="video-empty-title">Ready to process your video</h2>
+                <p id="video-empty-copy">Drop a video on the left or click "+ Load sample HD video" to test video compression and format conversion right now.</p>
+              </div>
+
+              <div class="summary" id="video-summary" hidden aria-live="polite">
+                <div><span id="video-summary-count">0 files</span><strong id="video-summary-saved">Ready</strong></div>
+                <div class="summary-track"><span id="video-summary-bar"></span></div>
+              </div>
+
+              <!-- Live Video / Audio Player Preview -->
+              <div class="video-player-wrap" id="video-player-wrap" hidden>
+                <video id="video-output-player" controls playsinline></video>
+                <audio id="audio-output-player" controls hidden></audio>
+              </div>
+
+              <div class="result-list" id="video-result-list" aria-live="polite"></div>
+            </div>
+          </section>
+        </div>
+      </div>
+
       <section class="details" aria-label="Converter details">
-        <article><span>01</span><h3>Zero uploads, zero wait</h3><p>Unlike cloud PDF portals that upload your sensitive files to remote queues, Webpresso processes everything locally in milliseconds.</p></article>
-        <article><span>02</span><h3>Visual Workbench &amp; Chaining</h3><p>Inspect and rotate individual pages visually, then chain your output from Merge → Watermark → Sign → Compress in one click.</p></article>
-        <article><span>03</span><h3>Direct Links &amp; State Memory</h3><p>Every studio and PDF tool has its own shareable URL and remembers where you left off across refreshes and Back navigation.</p></article>
+        <article><span>01</span><h3>Zero uploads, zero wait</h3><p>Unlike cloud portals that upload your private images, PDFs, and videos to remote queues, Webpresso processes everything locally on your device.</p></article>
+        <article><span>02</span><h3>PDF to Anything &amp; Video Studio</h3><p>Convert PDFs into Word, PowerPoint, Excel, HTML, SVG, Images, or Text—and compress or transcode videos to MP4, WebM, GIF, and WAV.</p></article>
+        <article><span>03</span><h3>Direct Clean URLs &amp; State Memory</h3><p>Every studio and tool has its own clean URL without hashtags and remembers where you left off across refreshes and Back navigation.</p></article>
       </section>
     </main>
 
     <footer>
       <div class="footer-brand-row">
         <span>webpresso</span>
-        <p>Free, private, and made for faster websites &amp; effortless PDFs.</p>
+        <p>Free, private, and made for faster websites, effortless PDFs &amp; lightweight videos.</p>
       </div>
       <nav class="footer-links" aria-label="Direct section links">
         <a href="/image-studio">Image to WebP</a>
@@ -879,6 +1355,10 @@
         <a href="/pdf/grayscale">Grayscale PDF</a>
         <a href="/pdf/img-to-pdf">Images to PDF</a>
         <a href="/pdf/text-to-pdf">Text to PDF</a>
+        <a href="/pdf/pdf-to-word">PDF to Word</a>
+        <a href="/pdf/pdf-to-ppt">PDF to PowerPoint</a>
+        <a href="/pdf/pdf-to-excel">PDF to Excel</a>
+        <a href="/pdf/pdf-to-html">PDF to HTML/SVG</a>
         <a href="/pdf/pdf-to-img">PDF to Images</a>
         <a href="/pdf/pdf-to-text">PDF to Text</a>
         <a href="/pdf/page-numbers">Page Numbers</a>
@@ -886,6 +1366,12 @@
         <a href="/pdf/sign">Sign PDF</a>
         <a href="/pdf/crop">Crop PDF</a>
         <a href="/pdf/protect">Protect PDF</a>
+        <a href="/video/compress">Compress Video</a>
+        <a href="/video/convert">Convert Video</a>
+        <a href="/video/trim">Trim Video</a>
+        <a href="/video/to-gif">Video to GIF</a>
+        <a href="/video/to-audio">Video to Audio</a>
+        <a href="/video/frames">Video to Frames</a>
       </nav>
     </footer>
 

@@ -1,0 +1,30 @@
+# macOS / OS metadata
+.DS_Store
+.AppleDouble
+.LSOverride
+._*
+__MACOSX/
+Thumbs.db
+
+# Node dependencies & logs
+node_modules/
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+pnpm-debug.log*
+
+# Environment & local secrets
+.env
+.env.local
+.env.*.local
+
+# Editor & IDE directories
+.vscode/
+.idea/
+*.swp
+*.swo
+
+# Local deployment zip archives (generated via `npm run build`, kept on disk)
+*.zip
+
+# Note: Do NOT ignore `dist/` — in Webpresso, `dist/` contains the tracked source files.

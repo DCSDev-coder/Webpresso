@@ -4,7 +4,8 @@
   "description": "Webpresso — Client-Side WebP Image Studio & 16-in-1 PDF Studio",
   "private": true,
   "scripts": {
-    "build": "node --check dist/pdf-engine.js && node --check dist/app.js && (cd dist && zip -q -FS ../dist.zip .htaccess index.html styles.css app.js pdf-engine.js) && echo 'Build verified & flat dist.zip created for cPanel!'",
-    "start": "npx --yes serve dist -s"
+    "build": "node --check dist/pdf-engine.js && node --check dist/video-engine.js && node --check dist/app.js && (cd dist && zip -q -FS ../dist.zip .htaccess index.html styles.css app.js pdf-engine.js video-engine.js) && echo 'Build verified & flat dist.zip created for cPanel!'",
+    "start": "node -e 'const http=require(\"http\"),fs=require(\"fs\"),path=require(\"path\"),mimes={\".html\":\"text/html;charset=utf-8\",\".css\":\"text/css;charset=utf-8\",\".js\":\"application/javascript;charset=utf-8\",\".svg\":\"image/svg+xml\"};let port=Number(process.env.PORT)||3000;const srv=http.createServer((req,res)=>{const clean=req.url.split(\"?\")[0];let fp=path.join(__dirname,\"dist\",clean===\"/\"?\"index.html\":clean);if(!fs.existsSync(fp)||fs.statSync(fp).isDirectory())fp=path.join(__dirname,\"dist\",\"index.html\");const ext=path.extname(fp);res.writeHead(200,{\"Content-Type\":mimes[ext]||\"application/octet-stream\"});fs.createReadStream(fp).pipe(res);});srv.on(\"error\",(e)=>{if(e.code===\"EADDRINUSE\"){port++;srv.listen(port);}else throw e;});srv.listen(port,()=>console.log(\"\\n  🚀 Webpresso running at http://localhost:\"+port+\"\\n\"));'",
+    "dev": "npm start"
   }
 }

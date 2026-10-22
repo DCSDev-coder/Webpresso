@@ -14,6 +14,10 @@
     pdfResults: [],
     pdfProcessing: false,
     sigHasDrawing: false,
+    videoTool: 'compress',
+    videoQueue: [],
+    videoResults: [],
+    videoProcessing: false,
     navStack: []
   };
 
@@ -22,10 +26,13 @@
     studiosRoot: $('studios-root'),
     tabBtnImage: $('tab-btn-image'),
     tabBtnPdf: $('tab-btn-pdf'),
+    tabBtnVideo: $('tab-btn-video'),
     imageStudioPanel: $('image-studio-panel'),
     pdfStudioPanel: $('pdf-studio-panel'),
+    videoStudioPanel: $('video-studio-panel'),
     pageTitle: $('page-title'),
     pdfPageTitle: $('pdf-page-title'),
+    videoPageTitle: $('video-page-title'),
 
     // Route & History Bar
     routeBar: $('route-bar'),
@@ -102,6 +109,11 @@
     pdfImgQuality: $('pdf-img-quality'),
     pdfImgQualityVal: $('pdf-img-quality-val'),
     pdfTextFormat: $('pdf-text-format'),
+    pdfWordMode: $('pdf-word-mode'),
+    pdfPptRatio: $('pdf-ppt-ratio'),
+    pdfPptType: $('pdf-ppt-type'),
+    pdfExcelFormat: $('pdf-excel-format'),
+    pdfHtmlFormat: $('pdf-html-format'),
     pagenumPos: $('pagenum-pos'),
     pagenumFormat: $('pagenum-format'),
     pagenumStart: $('pagenum-start'),
@@ -145,6 +157,55 @@
     extractedTextPanel: $('extracted-text-panel'),
     extractedTextOutput: $('extracted-text-output'),
     copyExtractedBtn: $('copy-extracted-btn'),
+
+    // Video Studio Elements
+    videoToolGrid: $('video-tool-grid'),
+    videoStep1Title: $('video-step1-title'),
+    videoSampleBtn: $('video-sample-btn'),
+    videoDropZone: $('video-drop-zone'),
+    videoDropTitle: $('video-drop-title'),
+    videoFormatNote: $('video-format-note'),
+    videoFileInput: $('video-file-input'),
+    videoQueueWrap: $('video-queue-wrap'),
+    videoQueueMeta: $('video-queue-meta'),
+    videoClearQueue: $('video-clear-queue'),
+    videoSourceList: $('video-source-list'),
+    videoStep2Title: $('video-step2-title'),
+    videoCompressRes: $('video-compress-res'),
+    videoCompressFormat: $('video-compress-format'),
+    videoCompressMute: $('video-compress-mute'),
+    videoConvertFormat: $('video-convert-format'),
+    videoConvertAspect: $('video-convert-aspect'),
+    videoConvertRes: $('video-convert-res'),
+    videoConvertFps: $('video-convert-fps'),
+    videoTrimStart: $('video-trim-start'),
+    videoTrimEnd: $('video-trim-end'),
+    videoTrimSpeed: $('video-trim-speed'),
+    videoTrimFormat: $('video-trim-format'),
+    videoGifWidth: $('video-gif-width'),
+    videoGifFps: $('video-gif-fps'),
+    videoGifDuration: $('video-gif-duration'),
+    videoAudioRate: $('video-audio-rate'),
+    videoAudioNorm: $('video-audio-norm'),
+    videoFramesCount: $('video-frames-count'),
+    videoFramesFormat: $('video-frames-format'),
+    videoProcessBtn: $('video-process-btn'),
+    videoProcessBtnLabel: $('video-process-btn-label'),
+    videoResultsHeading: $('video-results-heading'),
+    videoClearResults: $('video-clear-results'),
+    videoDownloadAll: $('video-download-all'),
+    videoEmptyState: $('video-empty-state'),
+    videoEmptyFrontBadge: $('video-empty-front-badge'),
+    videoEmptyTitle: $('video-empty-title'),
+    videoEmptyCopy: $('video-empty-copy'),
+    videoSummary: $('video-summary'),
+    videoSummaryCount: $('video-summary-count'),
+    videoSummarySaved: $('video-summary-saved'),
+    videoSummaryBar: $('video-summary-bar'),
+    videoPlayerWrap: $('video-player-wrap'),
+    videoOutputPlayer: $('video-output-player'),
+    audioOutputPlayer: $('audio-output-player'),
+    videoResultList: $('video-result-list'),
 
     toast: $('toast')
   };
@@ -443,6 +504,142 @@
       emptyTitle: 'Ready to protect your PDF',
       emptyCopy: 'Flatten selectable layers into tamper-resistant page bitmaps and embed custom title, author, and PIN seal.',
       sampleBtnText: '+ Load sample PDF'
+    },
+    'pdf-to-word': {
+      title: 'PDF to Word',
+      step1: 'Add PDF to convert to Word',
+      dropTitle: 'Drop a PDF file here',
+      formatNote: 'PDF TO .DOC / .RTF · EDITABLE PARAGRAPHS & PAGE LAYOUTS',
+      accept: 'application/pdf,.pdf',
+      multiple: false,
+      step2: 'Word document options',
+      btnLabel: 'Convert PDF to Word',
+      resultsHeading: 'Your Word document',
+      badge: 'WORD',
+      emptyTitle: 'Ready to convert PDF to Word',
+      emptyCopy: 'Convert your PDF into an editable Microsoft Word (.doc) or Rich Text (.rtf) file locally in your browser.',
+      sampleBtnText: '+ Load sample PDF'
+    },
+    'pdf-to-ppt': {
+      title: 'PDF to PowerPoint',
+      step1: 'Add PDF to convert to slides',
+      dropTitle: 'Drop a PDF file here',
+      formatNote: 'PDF TO .PPT SLIDE DECK · 16:9 WIDESCREEN OR 4:3',
+      accept: 'application/pdf,.pdf',
+      multiple: false,
+      step2: 'Presentation slide options',
+      btnLabel: 'Convert PDF to PowerPoint',
+      resultsHeading: 'Your presentation deck',
+      badge: 'PPT',
+      emptyTitle: 'Ready to convert PDF to PowerPoint',
+      emptyCopy: 'Turn every PDF page into a crisp presentation slide with speaker notes in .ppt or HTML5 deck format.',
+      sampleBtnText: '+ Load 3-page sample PDF'
+    },
+    'pdf-to-excel': {
+      title: 'PDF to Excel & CSV',
+      step1: 'Add PDF to extract tables & rows',
+      dropTitle: 'Drop a PDF file here',
+      formatNote: 'PDF TO .XLS WORKBOOK & .CSV SPREADSHEET',
+      accept: 'application/pdf,.pdf',
+      multiple: false,
+      step2: 'Spreadsheet extraction options',
+      btnLabel: 'Convert PDF to Excel',
+      resultsHeading: 'Your Excel / CSV spreadsheet',
+      badge: 'XLS',
+      emptyTitle: 'Ready to convert PDF to Excel',
+      emptyCopy: 'Extract rows, columns, and numeric data from every PDF page into a structured .xls workbook or .csv file.',
+      sampleBtnText: '+ Load sample financial PDF'
+    },
+    'pdf-to-html': {
+      title: 'PDF to HTML & SVG',
+      step1: 'Add PDF to convert to HTML / SVG',
+      dropTitle: 'Drop a PDF file here',
+      formatNote: 'PDF TO RESPONSIVE .HTML WEBPAGE OR .SVG VECTORS',
+      accept: 'application/pdf,.pdf',
+      multiple: false,
+      step2: 'HTML5 & SVG export options',
+      btnLabel: 'Convert PDF to HTML / SVG',
+      resultsHeading: 'Your HTML / SVG files',
+      badge: 'HTML',
+      emptyTitle: 'Ready to convert PDF to HTML or SVG',
+      emptyCopy: 'Export a standalone responsive HTML5 webpage or scalable SVG vector sheets for every PDF page.',
+      sampleBtnText: '+ Load sample PDF'
+    }
+  };
+
+  // ==================== 6 VIDEO STUDIO TOOLS METADATA ====================
+  const VIDEO_TOOL_META = {
+    compress: {
+      title: 'Compress Video',
+      step1: 'Add video to compress',
+      dropTitle: 'Drop a video file here',
+      formatNote: 'MP4 · WEBM · MOV · BITRATE & RESOLUTION COMPRESSION',
+      step2: 'Compression & bitrate settings',
+      btnLabel: 'Compress Video',
+      resultsHeading: 'Your compressed video',
+      badge: 'MP4',
+      emptyTitle: 'Ready to compress your video',
+      emptyCopy: 'Shrink heavy video files by up to 80% with custom bitrate and resolution caps—100% locally on your device.'
+    },
+    convert: {
+      title: 'Convert Video Format',
+      step1: 'Add video to convert format',
+      dropTitle: 'Drop a video file here',
+      formatNote: 'CONVERT TO MP4, WEBM, ANIMATED GIF, OR WAV AUDIO',
+      step2: 'Target format & aspect ratio',
+      btnLabel: 'Convert Video Format',
+      resultsHeading: 'Your converted media',
+      badge: 'CONV',
+      emptyTitle: 'Ready to convert video format',
+      emptyCopy: 'Transcode between MP4, WebM, Animated GIF, or lossless WAV audio and reframe to 16:9, 9:16 Reels, or 1:1 Square.'
+    },
+    trim: {
+      title: 'Trim & Speed Video',
+      step1: 'Add video to trim or change speed',
+      dropTitle: 'Drop a video file here',
+      formatNote: 'CUT START/END TIMECODES & ADJUST 0.5X–2X SPEED',
+      step2: 'Trim range & playback speed',
+      btnLabel: 'Trim & Export Video',
+      resultsHeading: 'Your trimmed video clip',
+      badge: 'TRIM',
+      emptyTitle: 'Ready to trim your video',
+      emptyCopy: 'Set exact start and end times in seconds and optionally speed up or slow down your clip.'
+    },
+    'to-gif': {
+      title: 'Video to Animated GIF',
+      step1: 'Add video to convert to GIF',
+      dropTitle: 'Drop a video file here',
+      formatNote: 'PURE ON-DEVICE GIF89a LZW LOOPING ANIMATION',
+      step2: 'Animated GIF dimensions & FPS',
+      btnLabel: 'Create Animated GIF',
+      resultsHeading: 'Your looping GIF animation',
+      badge: 'GIF',
+      emptyTitle: 'Ready to create an animated GIF',
+      emptyCopy: 'Turn any video clip into a sharp, looping .gif animation ready for GitHub, Slack, Discord, or docs.'
+    },
+    'to-audio': {
+      title: 'Video to Audio (WAV)',
+      step1: 'Add video to extract audio track',
+      dropTitle: 'Drop a video file here',
+      formatNote: 'EXTRACT 16-BIT PCM STUDIO WAV AUDIO TRACK',
+      step2: 'Audio sample rate & normalization',
+      btnLabel: 'Extract Audio (.WAV)',
+      resultsHeading: 'Your extracted audio track',
+      badge: 'WAV',
+      emptyTitle: 'Ready to extract audio from video',
+      emptyCopy: 'Decode the audio stream from any video file into a lossless 16-bit PCM .wav file with peak normalization.'
+    },
+    frames: {
+      title: 'Video to Frame Images',
+      step1: 'Add video to grab HD frames',
+      dropTitle: 'Drop a video file here',
+      formatNote: 'EXPORT STORYBOARD STILLS AS WEBP, PNG, OR JPG',
+      step2: 'Frame count & image format',
+      btnLabel: 'Extract Video Frames',
+      resultsHeading: 'Your extracted video frames',
+      badge: 'FRAMES',
+      emptyTitle: 'Ready to extract video frames',
+      emptyCopy: 'Capture evenly spaced high-resolution still frames from your video as WebP, PNG, or JPG images.'
     }
   };
 
@@ -454,7 +651,7 @@
       const raw = localStorage.getItem(STORAGE_KEY_ROUTE);
       if (!raw) return null;
       const parsed = JSON.parse(raw);
-      if (parsed && (parsed.studio === 'image' || parsed.studio === 'pdf')) {
+      if (parsed && (parsed.studio === 'image' || parsed.studio === 'pdf' || parsed.studio === 'video')) {
         return parsed;
       }
     } catch {
@@ -464,12 +661,13 @@
   };
 
   const saveCurrentRoute = () => {
-    const path = buildCanonicalHash(state.activeStudio, state.pdfTool);
+    const path = buildCanonicalHash(state.activeStudio, state.pdfTool, state.videoTool);
     const record = {
       path,
       studio: state.activeStudio,
       pdfTool: state.pdfTool,
-      pdfCategory: state.pdfCategory
+      pdfCategory: state.pdfCategory,
+      videoTool: state.videoTool
     };
     try {
       localStorage.setItem(STORAGE_KEY_ROUTE, JSON.stringify(record));
@@ -492,10 +690,14 @@
     return [];
   };
 
-  const buildCanonicalHash = (studio, pdfTool) => {
+  const buildCanonicalHash = (studio, pdfTool, videoTool = state.videoTool) => {
     if (studio === 'pdf') {
       const validTool = PDF_TOOL_META[pdfTool] ? pdfTool : 'merge';
       return `/pdf/${validTool}`;
+    }
+    if (studio === 'video') {
+      const validVideo = VIDEO_TOOL_META[videoTool] ? videoTool : 'compress';
+      return `/video/${validVideo}`;
     }
     return '/image-studio';
   };
@@ -503,11 +705,15 @@
   const formatRouteLabel = (routeObj) => {
     if (!routeObj) return 'Previous';
     if (routeObj.studio === 'image') return 'Image Studio';
+    if (routeObj.studio === 'video') {
+      const vMeta = VIDEO_TOOL_META[routeObj.videoTool];
+      return vMeta ? vMeta.title : 'Video Studio';
+    }
     const meta = PDF_TOOL_META[routeObj.pdfTool];
     return meta ? meta.title : 'PDF Studio';
   };
 
-  // Parse a route path or legacy hash string like "/pdf/watermark", "/pdf/category/edit", "/image-studio"
+  // Parse a route path or legacy hash string like "/pdf/pdf-to-word", "/video/compress", "/image-studio"
   const parseHashString = (rawStr) => {
     const cleaned = String(rawStr || '')
       .replace(/^#+/, '')
@@ -519,10 +725,39 @@
     if (!cleaned || cleaned === 'index.html') return null;
 
     if (cleaned === 'image-studio' || cleaned === 'image' || cleaned === 'webp') {
-      return { studio: 'image', pdfTool: state.pdfTool, pdfCategory: state.pdfCategory };
+      return {
+        studio: 'image',
+        pdfTool: state.pdfTool,
+        pdfCategory: state.pdfCategory,
+        videoTool: state.videoTool
+      };
     }
     if (cleaned === 'pdf-studio' || cleaned === 'pdf') {
-      return { studio: 'pdf', pdfTool: state.pdfTool || 'merge', pdfCategory: state.pdfCategory };
+      return {
+        studio: 'pdf',
+        pdfTool: state.pdfTool || 'merge',
+        pdfCategory: state.pdfCategory,
+        videoTool: state.videoTool
+      };
+    }
+    if (cleaned === 'video-studio' || cleaned === 'video') {
+      return {
+        studio: 'video',
+        pdfTool: state.pdfTool,
+        pdfCategory: state.pdfCategory,
+        videoTool: state.videoTool || 'compress'
+      };
+    }
+    if (cleaned.startsWith('video/')) {
+      const vTool = cleaned.slice('video/'.length);
+      if (VIDEO_TOOL_META[vTool]) {
+        return {
+          studio: 'video',
+          pdfTool: state.pdfTool,
+          pdfCategory: state.pdfCategory,
+          videoTool: vTool
+        };
+      }
     }
     if (cleaned.startsWith('pdf/category/')) {
       const cat = cleaned.slice('pdf/category/'.length);
@@ -530,7 +765,8 @@
         return {
           studio: 'pdf',
           pdfTool: state.pdfTool || 'merge',
-          pdfCategory: cat
+          pdfCategory: cat,
+          videoTool: state.videoTool
         };
       }
     }
@@ -540,7 +776,8 @@
         return {
           studio: 'pdf',
           pdfTool: toolId,
-          pdfCategory: state.pdfCategory
+          pdfCategory: state.pdfCategory,
+          videoTool: state.videoTool
         };
       }
     }
@@ -553,24 +790,31 @@
 
   // Update the Header tabs, Breadcrumb bar, Back button, and Document Title
   const updateRouteUI = () => {
-    const canonicalPath = buildCanonicalHash(state.activeStudio, state.pdfTool);
+    const canonicalPath = buildCanonicalHash(state.activeStudio, state.pdfTool, state.videoTool);
 
-    // Keep the top PDF Studio tab link pointing to the user's active PDF tool
     if (els.tabBtnPdf) {
       els.tabBtnPdf.setAttribute('href', `/pdf/${state.pdfTool}`);
     }
+    if (els.tabBtnVideo) {
+      els.tabBtnVideo.setAttribute('href', `/video/${state.videoTool}`);
+    }
 
-    // Update permalink slug
     if (els.routeSlug) {
       els.routeSlug.textContent = canonicalPath;
     }
 
-    // Update breadcrumbs
     if (state.activeStudio === 'image') {
       els.breadcrumbStudioLink.textContent = 'Image Studio (WebP)';
       els.breadcrumbStudioLink.setAttribute('href', '/image-studio');
       els.breadcrumbTool.hidden = true;
       document.title = 'Webpresso — Image to WebP Studio';
+    } else if (state.activeStudio === 'video') {
+      const vMeta = VIDEO_TOOL_META[state.videoTool] || VIDEO_TOOL_META.compress;
+      els.breadcrumbStudioLink.textContent = 'Video Studio';
+      els.breadcrumbStudioLink.setAttribute('href', `/video/${state.videoTool}`);
+      els.breadcrumbTool.hidden = false;
+      els.breadcrumbToolLabel.textContent = vMeta.title;
+      document.title = `${vMeta.title} — Webpresso Video Studio`;
     } else {
       const toolMeta = PDF_TOOL_META[state.pdfTool] || PDF_TOOL_META.merge;
       els.breadcrumbStudioLink.textContent = 'PDF Studio';
@@ -580,55 +824,52 @@
       document.title = `${toolMeta.title} — Webpresso PDF Studio`;
     }
 
-    // Update Back button state & label
     const prevEntry = state.navStack.length > 1 ? state.navStack[state.navStack.length - 2] : null;
     if (els.navBackBtn) {
       els.navBackBtn.disabled = !prevEntry;
       const prevName = prevEntry ? formatRouteLabel(prevEntry) : '';
       els.navBackLabel.textContent = prevEntry ? `Back to ${prevName}` : 'Back';
       els.navBackBtn.title = prevEntry
-        ? `Return to ${prevName} (${buildCanonicalHash(prevEntry.studio, prevEntry.pdfTool)})`
+        ? `Return to ${prevName} (${buildCanonicalHash(prevEntry.studio, prevEntry.pdfTool, prevEntry.videoTool)})`
         : 'No previous section in history';
     }
   };
 
   // Core studio switcher DOM logic (called by router & beforematch)
   const applyStudioDOM = (studioName) => {
-    const target = studioName === 'pdf' ? 'pdf' : 'image';
+    const target = studioName === 'pdf' ? 'pdf' : studioName === 'video' ? 'video' : 'image';
     state.activeStudio = target;
 
-    const isImage = target === 'image';
     const supportsUntilFound = 'onbeforematch' in HTMLElement.prototype;
+    const panels = [
+      { id: 'image', el: els.imageStudioPanel, btn: els.tabBtnImage },
+      { id: 'pdf', el: els.pdfStudioPanel, btn: els.tabBtnPdf },
+      { id: 'video', el: els.videoStudioPanel, btn: els.tabBtnVideo }
+    ];
 
-    if (isImage) {
-      els.imageStudioPanel.removeAttribute('hidden');
-      if (supportsUntilFound) {
-        els.pdfStudioPanel.setAttribute('hidden', 'until-found');
+    panels.forEach(({ id, el, btn }) => {
+      if (!el) return;
+      const active = id === target;
+      if (active) {
+        el.removeAttribute('hidden');
+      } else if (supportsUntilFound) {
+        el.setAttribute('hidden', 'until-found');
       } else {
-        els.pdfStudioPanel.setAttribute('hidden', '');
+        el.setAttribute('hidden', '');
       }
-    } else {
-      els.pdfStudioPanel.removeAttribute('hidden');
-      if (supportsUntilFound) {
-        els.imageStudioPanel.setAttribute('hidden', 'until-found');
-      } else {
-        els.imageStudioPanel.setAttribute('hidden', '');
+      if (btn) {
+        btn.setAttribute('aria-expanded', active ? 'true' : 'false');
+        if (active) {
+          btn.setAttribute('aria-current', 'page');
+        } else {
+          btn.removeAttribute('aria-current');
+        }
       }
-    }
+    });
 
     document.querySelectorAll('[data-studio-item]').forEach((li) => {
       li.classList.toggle('active', li.dataset.studioItem === target);
     });
-
-    els.tabBtnImage.setAttribute('aria-expanded', isImage ? 'true' : 'false');
-    els.tabBtnPdf.setAttribute('aria-expanded', !isImage ? 'true' : 'false');
-    if (isImage) {
-      els.tabBtnImage.setAttribute('aria-current', 'page');
-      els.tabBtnPdf.removeAttribute('aria-current');
-    } else {
-      els.tabBtnPdf.setAttribute('aria-current', 'page');
-      els.tabBtnImage.removeAttribute('aria-current');
-    }
   };
 
   // Apply Category Filter DOM
@@ -643,31 +884,44 @@
 
   // Navigate to a route state with View Transitions & Focus Management (same-document-transitions)
   const navigateTo = (targetRoute, options = {}) => {
-    const nextStudio = targetRoute.studio === 'pdf' ? 'pdf' : 'image';
+    const nextStudio =
+      targetRoute.studio === 'pdf' ? 'pdf' : targetRoute.studio === 'video' ? 'video' : 'image';
     const nextTool = PDF_TOOL_META[targetRoute.pdfTool] ? targetRoute.pdfTool : state.pdfTool || 'merge';
+    const nextVideoTool = VIDEO_TOOL_META[targetRoute.videoTool]
+      ? targetRoute.videoTool
+      : state.videoTool || 'compress';
     const nextCat = VALID_CATEGORIES.includes(targetRoute.pdfCategory)
       ? targetRoute.pdfCategory
       : state.pdfCategory || 'all';
 
     const studioChanged = nextStudio !== state.activeStudio;
-    const toolChanged = nextTool !== state.pdfTool;
+    const toolChanged = nextTool !== state.pdfTool || nextVideoTool !== state.videoTool;
 
     const performDOMUpdate = () => {
       applyStudioDOM(nextStudio);
       applyPdfCategoryDOM(nextCat);
       if (nextStudio === 'pdf') {
         selectPdfTool(nextTool, { fromRouter: true });
+      } else if (nextStudio === 'video') {
+        selectVideoTool(nextVideoTool, { fromRouter: true });
       }
 
-      const canonicalPath = buildCanonicalHash(state.activeStudio, state.pdfTool);
+      const canonicalPath = buildCanonicalHash(state.activeStudio, state.pdfTool, state.videoTool);
 
       if (!options.skipStackPush) {
         const last = state.navStack[state.navStack.length - 1];
-        if (!last || last.studio !== state.activeStudio || (state.activeStudio === 'pdf' && last.pdfTool !== state.pdfTool)) {
+        const isSame =
+          last &&
+          last.studio === state.activeStudio &&
+          (state.activeStudio !== 'pdf' || last.pdfTool === state.pdfTool) &&
+          (state.activeStudio !== 'video' || last.videoTool === state.videoTool);
+
+        if (!isSame) {
           state.navStack.push({
             studio: state.activeStudio,
             pdfTool: state.pdfTool,
-            pdfCategory: state.pdfCategory
+            pdfCategory: state.pdfCategory,
+            videoTool: state.videoTool
           });
         }
       }
@@ -675,7 +929,8 @@
       const statePayload = {
         studio: state.activeStudio,
         pdfTool: state.pdfTool,
-        pdfCategory: state.pdfCategory
+        pdfCategory: state.pdfCategory,
+        videoTool: state.videoTool
       };
 
       try {
@@ -688,7 +943,6 @@
           window.history.pushState(statePayload, '', canonicalPath);
         }
       } catch {
-        // Fallback if opened via file:// protocol
         window.location.hash = `#${canonicalPath}`;
       }
 
@@ -700,6 +954,8 @@
       if (!options.focusHeading) return;
       if (state.activeStudio === 'image') {
         els.pageTitle?.focus({ preventScroll: true });
+      } else if (state.activeStudio === 'video') {
+        els.videoPageTitle?.focus({ preventScroll: true });
       } else {
         els.pdfPageTitle?.focus({ preventScroll: true });
       }
@@ -1590,6 +1846,30 @@
             format: els.pdfTextFormat.value
           });
           break;
+        case 'pdf-to-word':
+          outputs = await eng.pdfToWord(files[0], {
+            mode: els.pdfWordMode?.value || 'hybrid',
+            workbenchPages: wb
+          });
+          break;
+        case 'pdf-to-ppt':
+          outputs = await eng.pdfToPpt(files[0], {
+            aspectRatio: els.pdfPptRatio?.value || '16:9',
+            exportType: els.pdfPptType?.value || 'ppt',
+            workbenchPages: wb
+          });
+          break;
+        case 'pdf-to-excel':
+          outputs = await eng.pdfToExcel(files[0], {
+            format: els.pdfExcelFormat?.value || 'xls'
+          });
+          break;
+        case 'pdf-to-html':
+          outputs = await eng.pdfToHtml(files[0], {
+            format: els.pdfHtmlFormat?.value || 'html',
+            workbenchPages: wb
+          });
+          break;
         case 'page-numbers':
           outputs = await eng.addPageNumbers(files[0], {
             position: els.pagenumPos.value,
@@ -1744,6 +2024,380 @@
     }
   });
 
+  // ==================== STUDIO 3: 6-IN-1 CLIENT-SIDE VIDEO STUDIO ====================
+  const selectVideoTool = (toolId, opts = {}) => {
+    if (!VIDEO_TOOL_META[toolId]) return;
+    state.videoTool = toolId;
+    const meta = VIDEO_TOOL_META[toolId];
+
+    document.querySelectorAll('[data-video-tool]').forEach((btn) => {
+      const active = btn.dataset.videoTool === toolId;
+      btn.classList.toggle('active', active);
+      btn.setAttribute('aria-selected', active ? 'true' : 'false');
+    });
+
+    document.querySelectorAll('[data-video-config]').forEach((cfg) => {
+      cfg.hidden = cfg.dataset.videoConfig !== toolId;
+    });
+
+    if (els.videoStep1Title) els.videoStep1Title.textContent = meta.step1;
+    if (els.videoDropTitle) els.videoDropTitle.textContent = meta.dropTitle;
+    if (els.videoFormatNote) els.videoFormatNote.textContent = meta.formatNote;
+    if (els.videoStep2Title) els.videoStep2Title.textContent = meta.step2;
+    if (els.videoProcessBtnLabel) els.videoProcessBtnLabel.textContent = meta.btnLabel;
+    if (els.videoResultsHeading) els.videoResultsHeading.textContent = meta.resultsHeading;
+    if (els.videoEmptyFrontBadge) els.videoEmptyFrontBadge.textContent = meta.badge;
+    if (els.videoEmptyTitle) els.videoEmptyTitle.textContent = meta.emptyTitle;
+    if (els.videoEmptyCopy) els.videoEmptyCopy.textContent = meta.emptyCopy;
+
+    if (!opts.fromRouter) {
+      saveCurrentRoute();
+      updateRouteUI();
+    }
+  };
+
+  const clearVideoQueue = (silent = false) => {
+    state.videoQueue.forEach((entry) => revokeUrlSafe(entry.previewUrl));
+    state.videoQueue = [];
+    renderVideoQueue();
+    if (!silent) showToast('Removed video from queue');
+  };
+
+  const clearVideoResults = (silent = false) => {
+    state.videoResults.forEach((res) => {
+      revokeUrlSafe(res.preview);
+      revokeUrlSafe(res.playUrl);
+    });
+    state.videoResults = [];
+    if (els.videoOutputPlayer) {
+      els.videoOutputPlayer.pause();
+      els.videoOutputPlayer.removeAttribute('src');
+    }
+    if (els.audioOutputPlayer) {
+      els.audioOutputPlayer.pause();
+      els.audioOutputPlayer.removeAttribute('src');
+    }
+    if (els.videoPlayerWrap) els.videoPlayerWrap.hidden = true;
+    renderVideoResults();
+    if (!silent) showToast('Cleared video output');
+  };
+
+  const renderVideoQueue = () => {
+    if (!els.videoQueueWrap) return;
+    const count = state.videoQueue.length;
+    els.videoQueueWrap.hidden = count === 0;
+    els.videoSourceList.innerHTML = '';
+    if (!count) return;
+
+    const entry = state.videoQueue[0];
+    els.videoQueueMeta.textContent = `${entry.width}×${entry.height} · ${entry.duration.toFixed(1)}s`;
+
+    const row = document.createElement('div');
+    row.className = 'source-item';
+
+    const thumb = document.createElement('img');
+    thumb.className = 'source-thumb';
+    thumb.alt = '';
+    if (entry.previewUrl) thumb.src = entry.previewUrl;
+
+    const meta = document.createElement('div');
+    meta.className = 'source-meta';
+    const name = document.createElement('p');
+    name.className = 'source-name';
+    name.textContent = entry.file.name;
+
+    const sub = document.createElement('div');
+    sub.className = 'source-sub';
+    sub.innerHTML = `<span>${formatBytes(entry.file.size)}</span><span>·</span><span class="source-badge">${entry.width}×${entry.height} (${entry.duration.toFixed(1)}s)</span>`;
+    meta.append(name, sub);
+
+    row.append(thumb, meta);
+    els.videoSourceList.append(row);
+  };
+
+  const renderVideoResults = () => {
+    if (!els.videoResultList) return;
+    const items = state.videoResults;
+    const hasResults = items.length > 0;
+    els.videoEmptyState.hidden = hasResults;
+    els.videoSummary.hidden = !hasResults;
+    els.videoClearResults.hidden = !hasResults;
+    els.videoDownloadAll.hidden = items.length < 2;
+    els.videoResultList.innerHTML = '';
+
+    if (!hasResults) {
+      if (els.videoPlayerWrap) els.videoPlayerWrap.hidden = true;
+      return;
+    }
+
+    const totalOut = items.reduce((s, item) => s + (item.blob?.size || 0), 0);
+    const totalIn = items[0].originalSize || totalOut;
+    els.videoSummaryCount.textContent = `${items.length} output file${items.length === 1 ? '' : 's'} (${formatBytes(totalOut)})`;
+
+    const saved = Math.max(0, totalIn - totalOut);
+    if (saved > 0 && state.videoTool === 'compress') {
+      const pct = Math.max(8, Math.min(100, Math.round((saved / totalIn) * 100)));
+      els.videoSummarySaved.textContent = `${formatBytes(saved)} saved (${pct}% smaller)`;
+      els.videoSummaryBar.style.width = `${pct}%`;
+    } else {
+      els.videoSummarySaved.textContent = items[0].badge || 'Ready to download';
+      els.videoSummaryBar.style.width = '100%';
+    }
+
+    // Show interactive player if output is video or audio
+    const first = items[0];
+    if (els.videoPlayerWrap && (first.isVideo || first.isAudio)) {
+      els.videoPlayerWrap.hidden = false;
+      if (!first.playUrl) {
+        first.playUrl = URL.createObjectURL(first.blob);
+      }
+      if (first.isVideo) {
+        els.videoOutputPlayer.hidden = false;
+        els.audioOutputPlayer.hidden = true;
+        els.videoOutputPlayer.src = first.playUrl;
+      } else {
+        els.videoOutputPlayer.hidden = true;
+        els.audioOutputPlayer.hidden = false;
+        els.audioOutputPlayer.src = first.playUrl;
+      }
+    } else if (els.videoPlayerWrap) {
+      els.videoPlayerWrap.hidden = true;
+    }
+
+    items.forEach((item) => {
+      const row = document.createElement('article');
+      row.className = 'result-item';
+
+      const thumb = document.createElement('img');
+      thumb.className = 'thumb';
+      thumb.alt = '';
+      if (item.preview) thumb.src = item.preview;
+
+      const info = document.createElement('div');
+      info.className = 'file-info';
+      const name = document.createElement('p');
+      name.className = 'file-name';
+      name.textContent = item.name;
+
+      const meta = document.createElement('div');
+      meta.className = 'file-meta';
+      meta.innerHTML = `<span>${formatBytes(item.originalSize || item.blob.size)}</span><span>→</span><span>${formatBytes(item.blob.size)}</span><span class="saving">${item.badge || 'Ready'}</span>`;
+      info.append(name, meta);
+
+      const action = document.createElement('button');
+      action.className = 'item-action';
+      action.type = 'button';
+      action.title = `Download ${item.name}`;
+      action.setAttribute('aria-label', `Download ${item.name}`);
+      action.innerHTML =
+        '<svg viewBox="0 0 24 24" width="18" height="18" aria-hidden="true"><path d="M12 4v11m0 0 4-4m-4 4-4-4M5 20h14" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>';
+      action.addEventListener('click', () => downloadItem(item, item.name));
+
+      row.append(thumb, info, action);
+      els.videoResultList.append(row);
+    });
+  };
+
+  const addVideoStudioFiles = async (fileList) => {
+    const rawFiles = Array.from(fileList || []).filter(
+      (f) => f.type.startsWith('video/') || /\.(mp4|webm|mov|m4v|ogv|mkv|avi)$/i.test(f.name)
+    );
+    if (!rawFiles.length) {
+      showToast('Please choose a valid video file (MP4, WebM, MOV).');
+      return;
+    }
+
+    clearVideoQueue(true);
+    const file = rawFiles[0];
+    try {
+      const info = await window.WebpressoVideoEngine.inspectVideo(file);
+      state.videoQueue.push({
+        file,
+        duration: info.duration,
+        width: info.width,
+        height: info.height,
+        previewUrl: info.previewUrl
+      });
+      if (els.videoTrimEnd) {
+        els.videoTrimEnd.value = String(Number(info.duration.toFixed(1)));
+      }
+      renderVideoQueue();
+      await runVideoTool();
+    } catch (err) {
+      showToast(err.message || 'Could not inspect video file.');
+    }
+  };
+
+  const runVideoTool = async () => {
+    if (state.videoProcessing) return;
+    if (state.videoQueue.length === 0) {
+      showToast('Please add a video first or click "+ Load sample HD video".');
+      return;
+    }
+
+    state.videoProcessing = true;
+    els.videoProcessBtn.disabled = true;
+    const originalLabel = els.videoProcessBtnLabel.textContent;
+    const onProgress = (pct) => {
+      els.videoProcessBtnLabel.textContent = `Processing ${pct}%…`;
+    };
+    onProgress(5);
+
+    try {
+      const file = state.videoQueue[0].file;
+      const eng = window.WebpressoVideoEngine;
+      let outputs = [];
+
+      switch (state.videoTool) {
+        case 'compress': {
+          const level =
+            document.querySelector('input[name="video-compress-level"]:checked')?.value ||
+            'recommended';
+          outputs = await eng.compressVideo(
+            file,
+            {
+              level,
+              maxHeight: els.videoCompressRes.value,
+              format: els.videoCompressFormat.value,
+              muteAudio: els.videoCompressMute.checked
+            },
+            onProgress
+          );
+          break;
+        }
+        case 'convert':
+          outputs = await eng.convertVideo(
+            file,
+            {
+              targetFormat: els.videoConvertFormat.value,
+              aspectRatio: els.videoConvertAspect.value,
+              maxHeight: Number(els.videoConvertRes.value) || 0,
+              fps: Number(els.videoConvertFps.value) || 30
+            },
+            onProgress
+          );
+          break;
+        case 'trim':
+          outputs = await eng.trimVideo(
+            file,
+            {
+              startTime: Number(els.videoTrimStart.value) || 0,
+              endTime: Number(els.videoTrimEnd.value) || 0,
+              speed: Number(els.videoTrimSpeed.value) || 1,
+              format: els.videoTrimFormat.value
+            },
+            onProgress
+          );
+          break;
+        case 'to-gif':
+          outputs = await eng.videoToGif(
+            file,
+            {
+              width: Number(els.videoGifWidth.value) || 420,
+              fps: Number(els.videoGifFps.value) || 10,
+              maxSeconds: Number(els.videoGifDuration.value) || 4
+            },
+            onProgress
+          );
+          break;
+        case 'to-audio':
+          outputs = await eng.extractAudioWav(
+            file,
+            {
+              sampleRate: Number(els.videoAudioRate.value) || 44100,
+              normalize: els.videoAudioNorm.value !== 'false'
+            },
+            onProgress
+          );
+          break;
+        case 'frames':
+          outputs = await eng.extractFrames(
+            file,
+            {
+              frameCount: Number(els.videoFramesCount.value) || 6,
+              format: els.videoFramesFormat.value
+            },
+            onProgress
+          );
+          break;
+      }
+
+      clearVideoResults(true);
+      state.videoResults = outputs;
+      renderVideoResults();
+      showToast(`Video processed: ${outputs[0]?.name || 'Ready'}`);
+    } catch (err) {
+      showToast(err.message || 'Could not process video.');
+    } finally {
+      state.videoProcessing = false;
+      els.videoProcessBtn.disabled = false;
+      els.videoProcessBtnLabel.textContent = originalLabel;
+    }
+  };
+
+  if (els.videoSampleBtn) {
+    els.videoSampleBtn.addEventListener('click', async () => {
+      els.videoSampleBtn.disabled = true;
+      const origText = els.videoSampleBtn.textContent;
+      els.videoSampleBtn.textContent = 'Synthesizing 720p HD video…';
+      try {
+        const sampleFile = await window.WebpressoVideoEngine.generateSampleVideo();
+        await addVideoStudioFiles([sampleFile]);
+      } catch (err) {
+        showToast(err.message || 'Could not generate sample video.');
+      } finally {
+        els.videoSampleBtn.disabled = false;
+        els.videoSampleBtn.textContent = origText;
+      }
+    });
+  }
+
+  if (els.videoDropZone) {
+    els.videoDropZone.addEventListener('click', () => els.videoFileInput.click());
+    els.videoDropZone.addEventListener('keydown', (event) => {
+      if (event.key === 'Enter' || event.key === ' ') {
+        event.preventDefault();
+        els.videoFileInput.click();
+      }
+    });
+    els.videoFileInput.addEventListener('change', (event) => {
+      addVideoStudioFiles(event.target.files);
+      event.target.value = '';
+    });
+    ['dragenter', 'dragover'].forEach((name) =>
+      els.videoDropZone.addEventListener(name, (event) => {
+        event.preventDefault();
+        els.videoDropZone.classList.add('dragging');
+      })
+    );
+    ['dragleave', 'drop'].forEach((name) =>
+      els.videoDropZone.addEventListener(name, (event) => {
+        event.preventDefault();
+        els.videoDropZone.classList.remove('dragging');
+      })
+    );
+    els.videoDropZone.addEventListener('drop', (event) =>
+      addVideoStudioFiles(event.dataTransfer.files)
+    );
+  }
+  if (els.videoClearQueue) {
+    els.videoClearQueue.addEventListener('click', () => clearVideoQueue(false));
+  }
+  if (els.videoClearResults) {
+    els.videoClearResults.addEventListener('click', () => clearVideoResults(false));
+  }
+  if (els.videoProcessBtn) {
+    els.videoProcessBtn.addEventListener('click', () => runVideoTool());
+  }
+  if (els.videoDownloadAll) {
+    els.videoDownloadAll.addEventListener('click', () => {
+      state.videoResults.forEach((item, index) =>
+        setTimeout(() => downloadItem(item, item.name), index * 180)
+      );
+      showToast(`Downloading ${state.videoResults.length} files`);
+    });
+  }
+
   // ==================== LINK CLICK INTERCEPTION & BACK NAVIGATION ====================
   document.addEventListener('click', (event) => {
     const link = event.target.closest('a[href^="/"], a[href^="#/"]');
@@ -1761,7 +2415,10 @@
   // Browser Back / Forward / Hashchange handlers
   window.addEventListener('popstate', (event) => {
     const fromState =
-      event.state && (event.state.studio === 'image' || event.state.studio === 'pdf')
+      event.state &&
+      (event.state.studio === 'image' ||
+        event.state.studio === 'pdf' ||
+        event.state.studio === 'video')
         ? event.state
         : parseCurrentLocation();
 
@@ -1769,7 +2426,8 @@
       if (
         state.navStack.length > 1 &&
         state.navStack[state.navStack.length - 2].studio === fromState.studio &&
-        state.navStack[state.navStack.length - 2].pdfTool === fromState.pdfTool
+        state.navStack[state.navStack.length - 2].pdfTool === fromState.pdfTool &&
+        state.navStack[state.navStack.length - 2].videoTool === fromState.videoTool
       ) {
         state.navStack.pop();
       }
@@ -1780,7 +2438,11 @@
   window.addEventListener('hashchange', () => {
     const parsed = parseHashString(window.location.hash);
     if (!parsed) return;
-    if (parsed.studio !== state.activeStudio || (parsed.studio === 'pdf' && parsed.pdfTool !== state.pdfTool)) {
+    if (
+      parsed.studio !== state.activeStudio ||
+      (parsed.studio === 'pdf' && parsed.pdfTool !== state.pdfTool) ||
+      (parsed.studio === 'video' && parsed.videoTool !== state.videoTool)
+    ) {
       navigateTo(parsed, { replaceHistory: true, animate: true });
     }
   });
@@ -1800,7 +2462,7 @@
   // Copy Direct Section Link button (#copy-route-link)
   if (els.copyRouteLink) {
     els.copyRouteLink.addEventListener('click', async () => {
-      const canonicalPath = buildCanonicalHash(state.activeStudio, state.pdfTool);
+      const canonicalPath = buildCanonicalHash(state.activeStudio, state.pdfTool, state.videoTool);
       const fullUrl = `${window.location.origin}${canonicalPath}`;
       try {
         await navigator.clipboard.writeText(fullUrl);
@@ -1881,11 +2543,12 @@
     const initialRoute = urlRoute || savedRoute || {
       studio: 'image',
       pdfTool: 'merge',
-      pdfCategory: 'all'
+      pdfCategory: 'all',
+      videoTool: 'compress'
     };
 
-    // Ensure tool UI is initialized even if starting in Image Studio
     selectPdfTool(initialRoute.pdfTool || 'merge', { fromRouter: true });
+    selectVideoTool(initialRoute.videoTool || 'compress', { fromRouter: true });
     navigateTo(initialRoute, { replaceHistory: true, animate: false });
   };
   initRouter();
